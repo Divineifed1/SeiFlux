@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Sei Gradient Text */
+.sei-gradient-text {
+  background-image: linear-gradient(90deg, #ff4d6d 0%, #d946ef 50%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Dark mode glow for Sei gradient text */
+.dark .sei-gradient-text {
+  text-shadow: 0 0 20px rgba(217,70,239,0.35);
+}
+
+/* Custom animations */
+@keyframes float {
+  0% {
+    transform: translatey(0px);
+  }
+  50% {
+    transform: translatey(-10px);
+  }
+  100% {
+    transform: translatey(0px);
+  }
+}
+
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Glassmorphism for dark mode cards */
+.dark .glass-card {
+  background-color: rgba(255,255,255,0.10);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.20);
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+}
+
+/* Light mode cards */
+.light .card {
+  background-color: #ffffff;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+/* Smooth transition for theme change */
+* {
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Select arrow background used in admin filters */
+.select-arrow-bg {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'><path stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/></svg>");
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+}
