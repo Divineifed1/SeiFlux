@@ -1,21 +1,57 @@
 "use client";
 
 import Link from 'next/link';
-import { Rocket, Trophy, User, Users, FolderGit2 } from 'lucide-react';
+import { Rocket, Trophy, User, Users, FolderGit2, Flame } from 'lucide-react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
+  const [wave, setWave] = useState<{ name: string; endsAt: string } | null>(null);
+  const [daysLeft, setDaysLeft] = useState(0);
+
   useEffect(() => {
-    AOS.init({
-      once: true,
-      duration: 800,
-    });
+    AOS.init({ once: true, duration: 800 });
+  }, []);
+
+  useEffect(() => {
+    const now = Date.now();
+    const upcoming = {
+      name: 'DeFi Wave',
+      startsAt: new Date(now - 86400000 * 3).toISOString(),
+      endsAt: new Date(now + 86400000 * 4).toISOString(),
+      status: 'active',
+      totalPoints: 5000,
+      participantCount: 0,
+      projectIds: [],
+    };
+    const end = new Date(upcoming.endsAt).getTime();
+    const diff = end - now;
+    setWave({ name: upcoming.name, endsAt: upcoming.endsAt });
+    setDaysLeft(Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24))));
   }, []);
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#050505] text-black dark:text-white transition-all">
+      {wave && (
+        <div className="border-b border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-[#0b0b0b]/60 backdrop-blur">
+          <div className="container mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="flex items-center gap-2 text-sm">
+              <Flame className="h-4 w-4 text-[#d946ef]" />
+              <span className="font-medium">Current FluxWave:</span>
+              <span className="sei-gradient-text font-semibold">{wave.name}</span>
+            </div>
+            <div className="text-sm text-zinc-700 dark:text-zinc-200">
+              <span className="font-medium">{daysLeft} day{daysLeft === 1 ? '' : 's'} left</span>
+              <span className="mx-2 text-zinc-400">•</span>
+              <Link href="/waves" className="hover:sei-gradient-text transition-all">
+                View Wave
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="relative py-20 bg-gradient-to-b from-white to-slate-50 dark:from-[#09090b] dark:to-[#050505] overflow-hidden">
         <div className="absolute inset-0 -z-10">
@@ -65,10 +101,10 @@ export default function Home() {
             <div className="bg-white dark:bg-white/10 rounded-xl p-8 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-2" data-aos="fade-up" data-aos-delay="400">
               <div className="flex items-center mb-4">
                 <Trophy className="h-8 w-8 text-gradient mr-4" />
-                <h3 className="text-xl font-semibold">Contribute and Earn Rewards</h3>
+                <h3 className="text-xl font-semibold">Contribute and Earn Points</h3>
               </div>
               <p className="text-zinc-600 dark:text-zinc-400">
-                Complete tasks, build your reputation, and earn rewards for your contributions.
+                Complete tasks, build your reputation, and earn points for your contributions.
               </p>
             </div>
             {/* Feature 3 */}

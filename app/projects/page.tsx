@@ -37,7 +37,7 @@ export default function ProjectsPage() {
           githubUrl: 'https://github.com/sei-wallet',
           contributorCount: 12,
           openTasks: 5,
-          rewardPool: 1000,
+          rewardPool: 15000,
           status: 'approved',
         },
         {
@@ -47,7 +47,7 @@ export default function ProjectsPage() {
           githubUrl: 'https://github.com/sei-dex',
           contributorCount: 8,
           openTasks: 3,
-          rewardPool: 2500,
+          rewardPool: 22500,
           status: 'approved',
         },
         {
@@ -57,7 +57,7 @@ export default function ProjectsPage() {
           githubUrl: 'https://github.com/sei-nft-marketplace',
           contributorCount: 15,
           openTasks: 7,
-          rewardPool: 5000,
+          rewardPool: 40000,
           status: 'approved',
         },
       ]);

@@ -63,20 +63,20 @@ export default function ProjectDetailPage(props: any) {
           githubUrl: 'https://github.com/sei-wallet',
           contributorCount: 12,
           openTasks: 5,
-          rewardPool: 1000,
+          rewardPool: 15000,
           status: 'approved',
           createdAt: '2026-01-15',
           website: 'https://sei-wallet.com',
           docs: 'https://docs.sei-wallet.com',
           tasks: [
-            { id: 1, title: 'Implement biometric authentication', reward: 75, difficulty: 'medium' },
-            { id: 2, title: 'Add support for Ledger Nano X', reward: 100, difficulty: 'hard' },
-            { id: 3, title: 'Create user guide for staking feature', reward: 50, difficulty: 'easy' },
+            { id: 1, title: 'Implement biometric authentication', reward: 75, difficulty: 'medium', wave: 'DeFi Wave' },
+            { id: 2, title: 'Add support for Ledger Nano X', reward: 100, difficulty: 'hard', wave: 'DeFi Wave' },
+            { id: 3, title: 'Create user guide for staking feature', reward: 50, difficulty: 'easy', wave: 'DeFi Wave' },
           ],
           contributors: [
-            { id: 1, name: 'Alice', avatar: 'https://i.pravatar.cc/150?img=1', contributions: 5, rewards: 250 },
-            { id: 2, name: 'Bob', avatar: 'https://i.pravatar.cc/150?img=2', contributions: 3, rewards: 150 },
-            { id: 3, name: 'Charlie', avatar: 'https://i.pravatar.cc/150?img=3', contributions: 8, rewards: 400 },
+            { id: 1, name: 'Alice', avatar: 'https://i.pravatar.cc/150?img=1', contributions: 5, rewards: 375 },
+            { id: 2, name: 'Bob', avatar: 'https://i.pravatar.cc/150?img=2', contributions: 3, rewards: 225 },
+            { id: 3, name: 'Charlie', avatar: 'https://i.pravatar.cc/150?img=3', contributions: 8, rewards: 600 },
           ],
         };
         setProject(mockProject);
@@ -173,11 +173,11 @@ export default function ProjectDetailPage(props: any) {
               <p className="text-zinc-600 dark:text-zinc-400 text-sm">Open Tasks</p>
               <p className="text-2xl font-semibold">{project.openTasks}</p>
             </div>
-            <div className="p-4 bg-white dark:bg-white/10 rounded-xl shadow-md" data-aos="fade-up" data-aos-delay="400">
-              <Wallet className="h-6 w-6 text-gradient mb-2" />
-              <p className="text-zinc-600 dark:text-zinc-400 text-sm">Points Pool</p>
-              <p className="text-2xl font-semibold">{project.rewardPool} Points</p>
-            </div>
+              <div className="p-4 bg-white dark:bg-white/10 rounded-xl shadow-md" data-aos="fade-up" data-aos-delay="400">
+                <Wallet className="h-6 w-6 text-gradient mb-2" />
+                <p className="text-zinc-600 dark:text-zinc-400 text-sm">Points Pool</p>
+                <p className="text-2xl font-semibold">{project.rewardPool} Points</p>
+              </div>
             <div className="p-4 bg-white dark:bg-white/10 rounded-xl shadow-md" data-aos="fade-up" data-aos-delay="600">
               <ShieldCheck className="h-6 w-6 text-gradient mb-2" />
               <p className="text-zinc-600 dark:text-zinc-400 text-sm">Status</p>

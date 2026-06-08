@@ -12,6 +12,7 @@ export default function SubmitProjectPage() {
     email: '',
     description: '',
     githubUrl: '',
+    techStack: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,6 +43,9 @@ export default function SubmitProjectPage() {
     } else if (!formData.githubUrl.startsWith('https://github.com/')) {
       newErrors.githubUrl = 'GitHub URL must start with https://github.com/';
     }
+    if (!formData.techStack.trim()) {
+      newErrors.techStack = 'Tech stack is required';
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -57,7 +61,7 @@ export default function SubmitProjectPage() {
         await new Promise((resolve) => setTimeout(resolve, 1500));
         setSubmitSuccess(true);
         // Reset form
-        setFormData({ name: '', email: '', description: '', githubUrl: '' });
+        setFormData({ name: '', email: '', description: '', githubUrl: '', techStack: '' });
       } catch (err) {
         // Handle error
         console.error(err);
@@ -167,7 +171,7 @@ export default function SubmitProjectPage() {
                 value={formData.githubUrl}
                 onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
                 placeholder="https://github.com/your-organization/your-project"
-                className={`w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gradient-to-r focus:from-[#ff4d6d] focus:via:#d946ef focus:to:#7c3aed] text-zinc-800 dark:text-zinc-200 ${
+                className={`w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gradient-to-r focus:from-[#ff4d6d] focus:via:[#d946ef] focus:to:[#7c3aed] text-zinc-800 dark:text-zinc-200 ${
                   errors.githubUrl ? 'border-red-500' : ''
                 }`}
               />
@@ -176,6 +180,28 @@ export default function SubmitProjectPage() {
                   {errors.githubUrl}
                 </p>
               )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Tech Stack
+              </label>
+              <input
+                type="text"
+                value={formData.techStack}
+                onChange={(e) => setFormData({ ...formData, techStack: e.target.value })}
+                placeholder="e.g., Next.js, TypeScript, NestJS, TypeORM"
+                className={`w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gradient-to-r focus:from-[#ff4d6d] focus:via:[#d946ef] focus:to:[#7c3aed] text-zinc-800 dark:text-zinc-200 ${
+                  errors.techStack ? 'border-red-500' : ''
+                }`}
+              />
+              {errors.techStack && (
+                <p className="mt-1 text-sm text-red-500">
+                  {errors.techStack}
+                </p>
+              )}
+              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                List the main technologies used in your project (comma separated)
+              </p>
             </div>
             <div className="flex justify-end">
               <button

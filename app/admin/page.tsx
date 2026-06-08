@@ -15,6 +15,8 @@ type AdminProject = {
   openTasks: number;
   rewardPool: number;
   status: string;
+  waveStatus?: 'joined' | 'not_joined';
+  wavePoints?: number;
   createdAt: string;
 };
 
@@ -34,52 +36,60 @@ export default function AdminDashboard() {
       setIsLoading(true);
       // Simulate API delay
       setTimeout(() => {
-        const mockProjects = [
-          {
-            id: 1,
-            name: 'Sei Wallet',
-            description: 'A secure and user-friendly wallet for the Sei blockchain.',
-            githubUrl: 'https://github.com/sei-wallet',
-            contributorCount: 12,
-            openTasks: 5,
-            rewardPool: 1000,
-            status: 'approved',
-            createdAt: '2026-01-15',
-          },
-          {
-            id: 2,
-            name: 'Sei DEX',
-            description: 'Decentralized exchange built on Sei for fast and low-cost trading.',
-            githubUrl: 'https://github.com/sei-dex',
-            contributorCount: 8,
-            openTasks: 3,
-            rewardPool: 2500,
-            status: 'pending',
-            createdAt: '2026-01-20',
-          },
-          {
-            id: 3,
-            name: 'Sei NFT Marketplace',
-            description: 'Marketplace for Sei-based NFTs with advanced features.',
-            githubUrl: 'https://github.com/sei-nft-marketplace',
-            contributorCount: 15,
-            openTasks: 7,
-            rewardPool: 5000,
-            status: 'rejected',
-            createdAt: '2026-01-10',
-          },
-          {
-            id: 4,
-            name: 'Sei Dashboard',
-            description: 'Analytics dashboard for Sei network metrics.',
-            githubUrl: 'https://github.com/sei-dashboard',
-            contributorCount: 5,
-            openTasks: 12,
-            rewardPool: 500,
-            status: 'pending',
-            createdAt: '2026-01-25',
-          },
-        ];
+          const mockProjects = [
+            {
+              id: 1,
+              name: 'Sei Wallet',
+              description: 'A secure and user-friendly wallet for the Sei blockchain.',
+              githubUrl: 'https://github.com/sei-wallet',
+              contributorCount: 12,
+              openTasks: 5,
+              rewardPool: 15000,
+              status: 'approved',
+              waveStatus: 'joined',
+              wavePoints: 375,
+              createdAt: '2026-01-15',
+            },
+            {
+              id: 2,
+              name: 'Sei DEX',
+              description: 'Decentralized exchange built on Sei for fast and low-cost trading.',
+              githubUrl: 'https://github.com/sei-dex',
+              contributorCount: 8,
+              openTasks: 3,
+              rewardPool: 22500,
+              status: 'pending',
+              waveStatus: 'not_joined',
+              wavePoints: 0,
+              createdAt: '2026-01-20',
+            },
+            {
+              id: 3,
+              name: 'Sei NFT Marketplace',
+              description: 'Marketplace for Sei-based NFTs with advanced features.',
+              githubUrl: 'https://github.com/sei-nft-marketplace',
+              contributorCount: 15,
+              openTasks: 7,
+              rewardPool: 40000,
+              status: 'rejected',
+              waveStatus: 'not_joined',
+              wavePoints: 0,
+              createdAt: '2026-01-10',
+            },
+            {
+              id: 4,
+              name: 'Sei Dashboard',
+              description: 'Analytics dashboard for Sei network metrics.',
+              githubUrl: 'https://github.com/sei-dashboard',
+              contributorCount: 5,
+              openTasks: 12,
+              rewardPool: 5000,
+              status: 'pending',
+              waveStatus: 'not_joined',
+              wavePoints: 0,
+              createdAt: '2026-01-25',
+            },
+          ];
         setProjects(mockProjects);
         setIsLoading(false);
       }, 1000);
@@ -102,11 +112,16 @@ export default function AdminDashboard() {
     );
 
   const handleApprove = async (id: number) => {
-    // In a real app, we would call the backend API to approve the project
-    // For now, we'll update the local state
     setProjects(
       projects.map((project) =>
-        project.id === id ? { ...project, status: 'approved' } : project
+        project.id === id
+          ? {
+              ...project,
+              status: 'approved',
+              waveStatus: 'joined',
+              wavePoints: project.openTasks * 75,
+            }
+          : project
       )
     );
   };
@@ -253,7 +268,13 @@ export default function AdminDashboard() {
                   Contributors
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  Status
+                  Approval
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                  Wave Status
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                  Wave Points
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   Actions
@@ -263,7 +284,7 @@ export default function AdminDashboard() {
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
               {filteredProjects.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-zinc-500 dark:text-zinc-400">
+                  <td colSpan={6} className="px-6 py-10 text-center text-zinc-500 dark:text-zinc-400">
                     No projects found matching your filters.
                   </td>
                 </tr>
@@ -294,6 +315,12 @@ export default function AdminDashboard() {
                       }`}>
                         {project.status}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-zinc-700 dark:text-zinc-200">
+                      {project.status === 'approved' ? (project.waveStatus === 'joined' ? 'Joined' : 'Not joined') : '—'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-zinc-700 dark:text-zinc-200">
+                      {project.status === 'approved' && project.waveStatus === 'joined' ? `${project.wavePoints ?? 0} pts` : '—'}
                     </td>
                     <td className="px-6 py-4 flex space-x-3">
                       <button
