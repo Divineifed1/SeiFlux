@@ -27,40 +27,14 @@ export default function ProjectsPage() {
     });
     // Fetch projects from API (placeholder)
     const fetchProjects = async () => {
-      // In a real app, we would call the backend API
-      // For now, we'll use mock data
-      setProjects([
-        {
-          id: 1,
-          name: 'Sei Wallet',
-          description: 'A secure and user-friendly wallet for the Sei blockchain.',
-          githubUrl: 'https://github.com/sei-wallet',
-          contributorCount: 12,
-          openTasks: 5,
-          rewardPool: 15000,
-          status: 'approved',
-        },
-        {
-          id: 2,
-          name: 'Sei DEX',
-          description: 'Decentralized exchange built on Sei for fast and low-cost trading.',
-          githubUrl: 'https://github.com/sei-dex',
-          contributorCount: 8,
-          openTasks: 3,
-          rewardPool: 22500,
-          status: 'approved',
-        },
-        {
-          id: 3,
-          name: 'Sei NFT Marketplace',
-          description: 'Marketplace for Sei-based NFTs with advanced features.',
-          githubUrl: 'https://github.com/sei-nft-marketplace',
-          contributorCount: 15,
-          openTasks: 7,
-          rewardPool: 40000,
-          status: 'approved',
-        },
-      ]);
+      try {
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+        const response = await fetch(`${backendUrl}/api/projects`);
+        const data = await response.json();
+        setProjects(data);
+      } catch (error) {
+        console.error('Failed to fetch projects:', error);
+      }
     };
 
     fetchProjects();
