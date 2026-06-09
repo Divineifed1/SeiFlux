@@ -90,7 +90,7 @@ export default function AdminDashboard() {
               createdAt: '2026-01-25',
             },
           ];
-        setProjects(mockProjects);
+        setProjects(mockProjects as AdminProject[]);
         setIsLoading(false);
       }, 1000);
     };
