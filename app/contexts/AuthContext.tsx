@@ -40,8 +40,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = () => {
+    const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
-    window.location.href = `${backendUrl}/api/auth/github/callback`;
+    if (!clientId) {
+      console.error('GitHub Client ID not configured');
+      return;
+    }
+    const redirectUri = `${backendUrl}/api/auth/github/callback`;
+    const scope = 'read:user user:email';
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}`;
   };
 
   const logout = () => {

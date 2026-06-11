@@ -9,7 +9,7 @@ node_modules/
 # Production
 /build
 /dist
-
+/cache
 # Misc
 .DS_Store
 .env.local
@@ -25,10 +25,6 @@ yarn-error.log*
 # IDE
 .vscode/
 .idea/
-
-# Next.js
-.next/
-out/
 
 # Backend
 /backend/node_modules
