@@ -2,12 +2,10 @@
 
 import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '../../contexts/AuthContext';
 
 function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login: setUser } = useAuth();
   const error = searchParams.get('error');
   const userParam = searchParams.get('user');
 
@@ -21,7 +19,6 @@ function CallbackContent() {
       try {
         const user = JSON.parse(decodeURIComponent(userParam));
         localStorage.setItem('seiflux_user', JSON.stringify(user));
-        setUser();
         router.push('/');
       } catch {
         router.push('/?error=invalid_user');
@@ -29,7 +26,7 @@ function CallbackContent() {
     } else {
       router.push('/');
     }
-  }, [error, userParam, router, setUser]);
+  }, [error, userParam, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -46,7 +43,6 @@ export default function AuthCallback() {
       </div>
     }>
       <CallbackContent />
-      
     </Suspense>
   );
 }

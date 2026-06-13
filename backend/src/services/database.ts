@@ -1,10 +1,9 @@
-import { getSupabase } from '../lib/supabase.js';
+import { supabase } from '../lib/supabase.js';
 import { User, Project, Wave, Contributor, Task, ProjectWave, ProjectContributor } from '../types/index.js';
 
 export class DatabaseService {
   // Users
   static async findOrCreateUser(userData: { login: string; avatar_url: string; name?: string }): Promise<User | null> {
-    const supabase = getSupabase();
     const { data: existing } = await supabase
       .from('Users')
       .select('*')
@@ -27,7 +26,6 @@ export class DatabaseService {
   }
 
   static async getUserByLogin(login: string): Promise<User | null> {
-    const supabase = getSupabase();
     const { data } = await supabase
       .from('Users')
       .select('*')
@@ -45,7 +43,6 @@ export class DatabaseService {
     techStack: string;
     submitterId: number;
   }): Promise<Project | null> {
-    const supabase = getSupabase();
     const { data } = await supabase
       .from('Projects')
       .insert(projectData)
@@ -56,7 +53,6 @@ export class DatabaseService {
   }
 
   static async getAllProjects(): Promise<Project[]> {
-    const supabase = getSupabase();
     const { data } = await supabase
       .from('Projects')
       .select('*')
@@ -66,7 +62,6 @@ export class DatabaseService {
   }
 
   static async getProjectById(id: number): Promise<Project | null> {
-    const supabase = getSupabase();
     const { data } = await supabase
       .from('Projects')
       .select('*')
@@ -77,7 +72,6 @@ export class DatabaseService {
   }
 
   static async updateProjectStatus(id: number, status: string): Promise<Project | null> {
-    const supabase = getSupabase();
     const { data } = await supabase
       .from('Projects')
       .update({ Status: status, UpdatedAt: new Date().toISOString() })
@@ -89,7 +83,6 @@ export class DatabaseService {
   }
 
   static async deleteProject(id: number): Promise<boolean> {
-    const supabase = getSupabase();
     const { error } = await supabase
       .from('Projects')
       .delete()
@@ -100,7 +93,6 @@ export class DatabaseService {
 
   // Waves
   static async getActiveWave(): Promise<Wave | null> {
-    const supabase = getSupabase();
     const { data } = await supabase
       .from('Waves')
       .select('*')
@@ -113,7 +105,6 @@ export class DatabaseService {
   }
 
   static async getAllWaves(): Promise<Wave[]> {
-    const supabase = getSupabase();
     const { data } = await supabase
       .from('Waves')
       .select('*')
@@ -128,7 +119,6 @@ export class DatabaseService {
     avatar_url: string;
     name?: string;
   }): Promise<Contributor | null> {
-    const supabase = getSupabase();
     const { data: existing } = await supabase
       .from('Contributors')
       .select('*')
@@ -152,7 +142,6 @@ export class DatabaseService {
 
   // Tasks
   static async getTasksByProject(projectId: number): Promise<Task[]> {
-    const supabase = getSupabase();
     const { data } = await supabase
       .from('Tasks')
       .select('*')
@@ -164,7 +153,6 @@ export class DatabaseService {
 
   // Stats
   static async getAdminStats() {
-    const supabase = getSupabase();
     const [projectsCount, contributorsCount, rewardsResult] = await Promise.all([
       supabase.from('Projects').select('*', { count: 'exact', head: true }),
       supabase.from('Contributors').select('*', { count: 'exact', head: true }),

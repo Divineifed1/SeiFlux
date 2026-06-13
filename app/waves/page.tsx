@@ -105,7 +105,7 @@ export default function WavesPage() {
             <h1 className="sei-gradient-text text-4xl font-bold">FluxWaves</h1>
             <p className="mt-3 text-zinc-600 dark:text-zinc-400 max-w-xl">
               Monthly themed waves run for 7 days. Approved projects join the active wave,
-              contributors complete tasks, and rewards are disributed after the wave ends.
+              contributors complete tasks, and points are awarded after the wave ends.
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-zinc-200 dark:border-zinc-700 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200">
