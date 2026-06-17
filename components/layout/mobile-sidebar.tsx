@@ -13,6 +13,8 @@ import {
   X,
   Zap,
   ShieldCheck,
+  BarChart2,
+  GitBranch,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -42,13 +44,18 @@ const BASE_NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
       { label: 'Projects', href: '/dashboard/projects', icon: FolderKanban },
+      { label: 'Opportunities', href: '/dashboard/opportunities', icon: Zap },
       { label: 'Contributors', href: '/dashboard/contributors', icon: Users },
       { label: 'Applications', href: '/dashboard/applications', icon: FileText },
+      { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart2 },
     ],
   },
   {
     title: 'Integrations',
-    items: [{ label: 'GitHub', href: '/dashboard/github', icon: FolderGit2 }],
+    items: [
+      { label: 'GitHub', href: '/dashboard/github', icon: FolderGit2 },
+      { label: 'Repositories', href: '/dashboard/github/repositories', icon: GitBranch },
+    ],
   },
   {
     title: 'Account',
