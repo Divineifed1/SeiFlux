@@ -14,9 +14,19 @@
  *   ['contributors', id]         — single item
  *   ['applications']             — list (all)
  *   ['applications', projectId]  — list scoped to project
+ *   ['github', 'repos']          — all connected repos
+ *   ['github', 'repos', name]    — single repo detail
+ *   ['github', 'orgs']           — connected GitHub orgs
+ *   ['opportunities']            — list (all)
+ *   ['opportunities', type]      — list filtered by type
+ *   ['opportunities', id]        — single opportunity
+ *   ['analytics', period]        — aggregated analytics for period
  */
 
 export { useOrganizations, useOrganization } from './use-organizations';
 export { useProjects, useProject } from './use-projects';
 export { useContributors, useContributor } from './use-contributors';
 export { useApplications } from './use-applications';
+export { useGithubRepos, useGithubRepo, useGithubOrgs } from './use-github';
+export { useOpportunities, useOpportunity } from './use-opportunities';
+export { useAnalytics } from './use-analytics';
