@@ -188,6 +188,7 @@ export default function OrganizationDetailPage({ params }: { params: { id: strin
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="github">GitHub</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
         {/* Projects tab */}
@@ -362,6 +363,100 @@ export default function OrganizationDetailPage({ params }: { params: { id: strin
                 </div>
               </div>
             ))}
+          </div>
+        </TabsContent>
+
+        {/* Analytics tab */}
+        <TabsContent value="analytics" className="mt-4 space-y-5">
+          {/* PR merged trend */}
+          <div className="rounded-xl border border-border bg-card p-5">
+            <h3 className="text-sm font-semibold text-foreground mb-4">PR Merged Trend (8 weeks)</h3>
+            <div className="flex items-end gap-2 h-28">
+              {[3, 5, 2, 8, 6, 9, 4, 7].map((val, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                  <div
+                    className="w-full rounded-t bg-primary/70"
+                    style={{ height: `${(val / 9) * 100}%`, minHeight: '4px' }}
+                  />
+                  <span className="text-[9px] text-muted-foreground">W{i + 1}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Contributor growth */}
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Contributor Growth</p>
+              <p className="text-2xl font-bold text-foreground tabular-nums">31</p>
+              <p className="text-xs text-green-400 mt-1">+12% this month</p>
+            </div>
+            {/* Issue resolution rate */}
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Issue Resolution Rate</p>
+              <p className="text-2xl font-bold text-foreground tabular-nums">72%</p>
+              <p className="text-xs text-green-400 mt-1">+7% vs last month</p>
+            </div>
+            {/* Open opportunities */}
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Open Opportunities</p>
+              <p className="text-2xl font-bold text-foreground tabular-nums">19</p>
+              <p className="text-xs text-muted-foreground mt-1">across 4 projects</p>
+            </div>
+          </div>
+
+          {/* Most active contributors */}
+          <div className="rounded-xl border border-border bg-card p-5">
+            <h3 className="text-sm font-semibold text-foreground mb-4">Most Active Contributors</h3>
+            <div className="rounded-lg border border-border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/30">
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Contributor</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Merged PRs</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Issues Closed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {MEMBERS.map((m) => (
+                    <tr key={m.id} className="border-b border-border/50 last:border-0">
+                      <td className="px-4 py-3">
+                        <p className="text-sm font-medium text-foreground">{m.name}</p>
+                        <p className="text-xs text-muted-foreground">@{m.handle}</p>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                        {m.id === '1' ? 12 : m.id === '2' ? 8 : m.id === '3' ? 7 : m.id === '4' ? 5 : m.id === '5' ? 4 : 2}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                        {m.id === '1' ? 15 : m.id === '2' ? 9 : m.id === '3' ? 11 : m.id === '4' ? 7 : m.id === '5' ? 5 : 4}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Weekly activity chart */}
+          <div className="rounded-xl border border-border bg-card p-5">
+            <h3 className="text-sm font-semibold text-foreground mb-4">Weekly Activity</h3>
+            <div className="space-y-2.5">
+              {['Week 1', 'Week 2', 'Week 3', 'Week 4'].map((week, i) => {
+                const vals = [35, 62, 48, 78];
+                return (
+                  <div key={week} className="flex items-center gap-3 text-xs">
+                    <span className="text-muted-foreground w-14 shrink-0">{week}</span>
+                    <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-primary/70"
+                        style={{ width: `${vals[i]}%` }}
+                      />
+                    </div>
+                    <span className="text-muted-foreground w-8 text-right">{vals[i]}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </TabsContent>
       </Tabs>
