@@ -21,6 +21,9 @@
  *   ['opportunities', type]      — list filtered by type
  *   ['opportunities', id]        — single opportunity
  *   ['analytics', period]        — aggregated analytics for period
+ *   ['notifications']            — list
+ *   ['notifications', 'unread-count'] — unread badge count
+ *   ['activity', limit]          — global activity feed
  */
 
 export { useOrganizations, useOrganization } from './use-organizations';
@@ -30,3 +33,5 @@ export { useApplications } from './use-applications';
 export { useGithubRepos, useGithubRepo, useGithubOrgs } from './use-github';
 export { useOpportunities, useOpportunity } from './use-opportunities';
 export { useAnalytics } from './use-analytics';
+export { useNotifications, useUnreadCount, useMarkNotificationRead, useMarkAllRead } from './use-notifications';
+export { useActivityFeed } from './use-activity';
