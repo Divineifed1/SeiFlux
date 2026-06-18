@@ -15,6 +15,9 @@ import {
   ShieldCheck,
   BarChart2,
   GitBranch,
+  Compass,
+  Activity,
+  Bell,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -40,6 +43,8 @@ const NAV_GROUPS: NavGroup[] = [
     title: 'Overview',
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { label: 'Discover', href: '/dashboard/discover', icon: Compass },
+      { label: 'Activity', href: '/dashboard/activity', icon: Activity },
     ],
   },
   {
@@ -63,6 +68,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Account',
     items: [
+      { label: 'Notifications', href: '/dashboard/notifications', icon: Bell, badge: 4 },
       { label: 'Settings', href: '/dashboard/settings', icon: Settings },
     ],
   },

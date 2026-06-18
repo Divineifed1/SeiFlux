@@ -42,9 +42,10 @@ const ROLE_BADGE_VARIANT = {
 
 interface TopNavProps {
   onMobileMenuOpen?: () => void;
+  onSearchOpen?: () => void;
 }
 
-export function TopNav({ onMobileMenuOpen }: TopNavProps) {
+export function TopNav({ onMobileMenuOpen, onSearchOpen }: TopNavProps) {
   const router = useRouter();
   const { user, logout } = useAuthStore();
 
@@ -67,13 +68,18 @@ export function TopNav({ onMobileMenuOpen }: TopNavProps) {
         <Menu className="h-4 w-4" />
       </Button>
 
-      {/* Search */}
+      {/* Search — opens command palette */}
       <div className="flex-1 max-w-sm">
-        <Input
-          placeholder="Search projects, contributors…"
-          startIcon={<Search />}
-          className="h-8 text-xs bg-muted border-0 focus-visible:ring-1"
-        />
+        <button
+          onClick={onSearchOpen}
+          className="w-full flex items-center gap-2 h-8 px-3 rounded-md bg-muted text-xs text-muted-foreground hover:bg-muted/80 transition-colors border-0 text-left"
+        >
+          <Search className="h-3.5 w-3.5 shrink-0" />
+          <span className="flex-1">Search…</span>
+          <kbd className="hidden sm:flex items-center gap-0.5 text-[10px] font-mono border border-border/60 rounded px-1 py-0.5 bg-background/50">
+            ⌘K
+          </kbd>
+        </button>
       </div>
 
       <div className="flex items-center gap-1 ml-auto">
