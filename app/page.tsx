@@ -36,7 +36,7 @@ function Hero() {
           <br />find their contributors
         </h1>
         <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
-          SEI Builders Hub is the platform where maintainers onboard their projects and talented
+          SeiFlux is the platform where maintainers onboard their projects and talented
           developers discover meaningful contribution opportunities across the Sei blockchain ecosystem.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">

@@ -25,7 +25,7 @@ export default function RepositoriesPage() {
     <div className="space-y-6 max-w-5xl">
       <PageHeader
         title="Repositories"
-        description="All GitHub repositories connected to SEI Builders Hub."
+        description="All GitHub repositories connected to SeiFlux."
         breadcrumb={
           <>
             <Link href="/dashboard/github" className="hover:text-foreground">GitHub</Link>

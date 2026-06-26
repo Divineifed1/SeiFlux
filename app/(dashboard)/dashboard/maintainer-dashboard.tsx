@@ -85,7 +85,7 @@ export function MaintainerDashboard() {
     <div className="space-y-6 max-w-6xl">
       <PageHeader
         title="Dashboard"
-        description="Overview of your SEI Builders Hub activity."
+        description="Overview of your SeiFlux activity."
         actions={
           <Button size="sm" asChild>
             <Link href="/dashboard/projects">

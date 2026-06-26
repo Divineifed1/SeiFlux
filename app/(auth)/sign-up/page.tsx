@@ -33,7 +33,7 @@ export default function SignUpPage() {
     toast({
       variant: 'success',
       title: 'Account created!',
-      description: "Welcome to SEI Builders Hub. Let's set up your profile.",
+      description: "Welcome to SeiFlux. Let's set up your profile.",
     });
     router.push('/onboarding');
   };
@@ -55,7 +55,7 @@ export default function SignUpPage() {
         <div className="text-center mb-6">
           <h1 className="text-xl font-bold text-foreground mb-1">Create your account</h1>
           <p className="text-sm text-muted-foreground">
-            Join the SEI Builders Hub community
+            Join the SeiFlux community
           </p>
         </div>
 

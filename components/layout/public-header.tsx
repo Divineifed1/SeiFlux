@@ -41,7 +41,7 @@ export function PublicHeader() {
               <Zap className="h-4 w-4 text-primary-foreground" />
             </div>
             <span className="font-bold text-sm text-foreground tracking-tight">
-              SEI Builders Hub
+              SeiFlux
             </span>
           </Link>
 

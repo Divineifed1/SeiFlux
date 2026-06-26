@@ -132,7 +132,7 @@ export default function FeaturesPage() {
           <span className="text-gradient-sei">Sei builder lifecycle</span>
         </h1>
         <p className="text-base text-muted-foreground leading-relaxed">
-          SEI Builders Hub provides purpose-built tools for maintainers, contributors,
+          SeiFlux provides purpose-built tools for maintainers, contributors,
           and platform administrators.
         </p>
       </div>

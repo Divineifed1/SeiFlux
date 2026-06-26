@@ -1,5 +1,5 @@
 /**
- * React Query hooks for the SEI Builders Hub API.
+ * React Query hooks for the SeiFlux API.
  *
  * All hooks use mock data today. When a real API is available, replace
  * the `queryFn` implementations — the calling components need no changes.

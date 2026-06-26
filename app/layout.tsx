@@ -13,22 +13,22 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'SEI Builders Hub',
-    template: '%s · SEI Builders Hub',
+    default: 'SeiFlux',
+    template: '%s · SeiFlux',
   },
   description:
     'The platform where maintainers building on the Sei blockchain onboard projects and attract contributors.',
   keywords: ['Sei', 'blockchain', 'builders', 'contributors', 'open source', 'web3'],
-  authors: [{ name: 'SEI Builders Hub' }],
+  authors: [{ name: 'SeiFlux' }],
   openGraph: {
     type: 'website',
-    title: 'SEI Builders Hub',
+    title: 'SeiFlux',
     description: 'Connect, build, and contribute on the Sei blockchain.',
-    siteName: 'SEI Builders Hub',
+    siteName: 'SeiFlux',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SEI Builders Hub',
+    title: 'SeiFlux',
     description: 'Connect, build, and contribute on the Sei blockchain.',
   },
 };

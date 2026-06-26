@@ -39,7 +39,7 @@ export default function SignInPage() {
           </div>
           <h1 className="text-xl font-bold text-foreground mb-1">Welcome back</h1>
           <p className="text-sm text-muted-foreground">
-            Sign in to your SEI Builders Hub account
+            Sign in to your SeiFlux account
           </p>
         </div>
 

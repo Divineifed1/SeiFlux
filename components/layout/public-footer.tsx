@@ -28,7 +28,7 @@ export function PublicFooter() {
               <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
                 <Zap className="h-3.5 w-3.5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-sm text-foreground">SEI Builders Hub</span>
+              <span className="font-bold text-sm text-foreground">SeiFlux</span>
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed max-w-[200px]">
               The platform for Sei blockchain builders and contributors.
@@ -59,7 +59,7 @@ export function PublicFooter() {
 
         <div className="border-t border-border/50 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} SEI Builders Hub. Built on Sei.
+            © {new Date().getFullYear()} SeiFlux. Built on Sei.
           </p>
           <div className="flex items-center gap-1.5">
             <div className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />

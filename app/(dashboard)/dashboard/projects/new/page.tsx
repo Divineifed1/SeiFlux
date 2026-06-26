@@ -103,7 +103,7 @@ export default function NewProjectPage() {
     toast({
       variant: 'success',
       title: 'Project published!',
-      description: `"${state.name}" is now live on SEI Builders Hub.`,
+      description: `"${state.name}" is now live on SeiFlux.`,
     });
     setStep(4);
   };
@@ -431,7 +431,7 @@ export default function NewProjectPage() {
             <div>
               <h3 className="text-lg font-semibold text-foreground">Project Published!</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                <span className="font-medium text-foreground">{state.name}</span> is now live on SEI Builders Hub.
+                <span className="font-medium text-foreground">{state.name}</span> is now live on SeiFlux.
               </p>
             </div>
             <div className="flex items-center justify-center gap-3 pt-2">

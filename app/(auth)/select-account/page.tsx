@@ -50,7 +50,7 @@ export default function SelectAccountPage() {
             Choose an account to continue
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            to SEI Builders Hub
+            to SeiFlux
           </p>
         </div>
 

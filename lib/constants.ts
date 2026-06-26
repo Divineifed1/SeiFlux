@@ -1,4 +1,4 @@
-export const APP_NAME = 'SEI Builders Hub';
+export const APP_NAME = 'SeiFlux';
 export const APP_DESCRIPTION =
   'The platform where maintainers building on the Sei blockchain onboard projects and attract contributors.';
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';

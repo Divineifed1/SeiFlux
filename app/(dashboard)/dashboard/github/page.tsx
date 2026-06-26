@@ -310,7 +310,7 @@ export default function GitHubPage() {
                 <div className="space-y-4">
                   <h3 className="text-sm font-semibold text-foreground">Review Permissions</h3>
                   <p className="text-xs text-muted-foreground mb-3">
-                    SEI Builders Hub will request the following permissions from your organization:
+                    SeiFlux will request the following permissions from your organization:
                   </p>
                   <div className="space-y-3">
                     {[
@@ -335,14 +335,14 @@ export default function GitHubPage() {
                 <div className="space-y-4">
                   <h3 className="text-sm font-semibold text-foreground">Install GitHub App</h3>
                   <p className="text-xs text-muted-foreground">
-                    Install the SEI Builders Hub GitHub App on your organization to enable repository syncing and webhook events.
+                    Install the SeiFlux GitHub App on your organization to enable repository syncing and webhook events.
                   </p>
                   <div className="rounded-lg border border-border p-4 flex items-center gap-4">
                     <div className="h-12 w-12 rounded-xl bg-foreground/10 flex items-center justify-center shrink-0">
                       <GithubIcon className="h-6 w-6 text-foreground" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">SEI Builders Hub</p>
+                      <p className="text-sm font-medium text-foreground">SeiFlux</p>
                       <p className="text-xs text-muted-foreground">GitHub App · by Sei Network</p>
                     </div>
                     <Badge variant="success" className="text-xs shrink-0">Verified</Badge>
