@@ -8,30 +8,25 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { useAuthStore, MOCK_MAINTAINER } from '@/lib/store/auth-store';
+import { loginWithGithub } from '@/lib/api/auth-api';
 
 export default function SignInPage() {
   const router = useRouter();
-  const { login } = useAuthStore();
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleGithubLogin = () => {
+    loginWithGithub();
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Simulate auth delay — replace with real API call
     await new Promise((r) => setTimeout(r, 800));
-
-    // Set cookie for middleware route protection
-    document.cookie = 'sei_auth_token=mock_token; path=/; max-age=86400';
-
-    login(MOCK_MAINTAINER);
     router.push('/dashboard');
   };
 
   return (
     <div className="w-full max-w-sm">
-      {/* Card */}
       <div className="rounded-2xl border border-border bg-card shadow-xl p-8">
         <div className="text-center mb-6">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary mx-auto mb-3">
@@ -43,12 +38,13 @@ export default function SignInPage() {
           </p>
         </div>
 
-        {/* GitHub OAuth */}
-        <Button variant="outline" className="w-full gap-2.5 mb-4 h-10" asChild>
-          <Link href="/select-account">
-            <GithubIcon className="h-4 w-4" />
-            Continue with GitHub
-          </Link>
+        <Button
+          variant="outline"
+          className="w-full gap-2.5 mb-4 h-10"
+          onClick={handleGithubLogin}
+        >
+          <GithubIcon className="h-4 w-4" />
+          Continue with GitHub
         </Button>
 
         <div className="relative my-5">
@@ -115,7 +111,7 @@ export default function SignInPage() {
       </p>
 
       <p className="text-center text-xs text-muted-foreground/50 mt-2">
-        Demo mode: any credentials work
+        Demo mode: email sign-in works with any credentials
       </p>
     </div>
   );

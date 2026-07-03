@@ -20,9 +20,48 @@ interface AuthState {
   login: (user: AuthUser) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
+  initializeFromStorage: () => void;
 }
 
-// Default mock user — swap out when real auth is wired
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      isAuthenticated: false,
+      isLoading: true,
+
+      login: (user) => set({ user, isAuthenticated: true, isLoading: false }),
+
+      logout: () => set({ user: null, isAuthenticated: false, isLoading: false }),
+
+      setLoading: (isLoading) => set({ isLoading }),
+
+      initializeFromStorage: () => {
+        if (typeof window === 'undefined') return;
+        const token = localStorage.getItem('auth_token');
+        const userStr = localStorage.getItem('auth_user');
+        if (token && userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            set({ user, isAuthenticated: true, isLoading: false });
+          } catch (e) {
+            set({ user: null, isAuthenticated: false, isLoading: false });
+          }
+        } else {
+          set({ isLoading: false });
+        }
+      },
+    }),
+    {
+      name: 'sei-builders-auth',
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
+    }
+  )
+);
+
 export const MOCK_MAINTAINER: AuthUser = {
   id: 'user_01',
   name: 'Alex Builder',
@@ -46,26 +85,3 @@ export const MOCK_CONTRIBUTOR: AuthUser = {
   role: 'contributor',
   githubUsername: 'devcontributor',
 };
-
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: MOCK_MAINTAINER, // Start authenticated for demo
-      isAuthenticated: true,
-      isLoading: false,
-
-      login: (user) => set({ user, isAuthenticated: true, isLoading: false }),
-
-      logout: () => set({ user: null, isAuthenticated: false }),
-
-      setLoading: (isLoading) => set({ isLoading }),
-    }),
-    {
-      name: 'sei-builders-auth',
-      partialize: (state) => ({
-        user: state.user,
-        isAuthenticated: state.isAuthenticated,
-      }),
-    }
-  )
-);

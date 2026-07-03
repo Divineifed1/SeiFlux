@@ -1,15 +1,35 @@
+'use client';
 import Link from 'next/link';
 import { Zap } from 'lucide-react';
+import { useAuthStore } from '@/lib/store/auth-store';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  const { initializeFromStorage, isAuthenticated, isLoading } = useAuthStore();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    initializeFromStorage();
+    if (!isLoading && isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [initializeFromStorage, isAuthenticated, isLoading, router]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background bg-dots flex items-center justify-center">
+        <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background bg-dots flex flex-col">
-      {/* Ambient glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[600px] w-[600px] rounded-full bg-primary/5 blur-[120px]" />
       </div>
 
-      {/* Header */}
       <header className="relative z-10 flex h-14 items-center px-6">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
@@ -19,12 +39,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </Link>
       </header>
 
-      {/* Content */}
       <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-12">
         {children}
       </main>
 
-      {/* Footer */}
       <footer className="relative z-10 py-4 px-6 text-center">
         <p className="text-xs text-muted-foreground">
           By continuing, you agree to the{' '}
