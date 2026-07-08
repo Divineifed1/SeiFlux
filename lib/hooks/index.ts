@@ -17,9 +17,9 @@
  *   ['github', 'repos']          — all connected repos
  *   ['github', 'repos', name]    — single repo detail
  *   ['github', 'orgs']           — connected GitHub orgs
- *   ['opportunities']            — list (all)
- *   ['opportunities', type]      — list filtered by type
- *   ['opportunities', id]        — single opportunity
+ *   ['issues']                   — list (all)
+ *   ['issues', type]             — list filtered by type
+ *   ['issues', id]               — single issue
  *   ['analytics', period]        — aggregated analytics for period
  *   ['notifications']            — list
  *   ['notifications', 'unread-count'] — unread badge count
@@ -31,7 +31,8 @@ export { useProjects, useProject } from './use-projects';
 export { useContributors, useContributor } from './use-contributors';
 export { useApplications } from './use-applications';
 export { useGithubRepos, useGithubRepo, useGithubOrgs } from './use-github';
-export { useOpportunities, useOpportunity } from './use-opportunities';
+export { useIssues, useIssue } from './use-issues';
+export { useWaves, useCurrentWave } from './use-waves';
 export { useAnalytics } from './use-analytics';
 export { useNotifications, useUnreadCount, useMarkNotificationRead, useMarkAllRead } from './use-notifications';
 export { useActivityFeed } from './use-activity';

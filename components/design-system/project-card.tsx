@@ -74,9 +74,9 @@ export function ProjectCard({ project, className, showStatus = false }: ProjectC
             <Users className="h-3 w-3" />
             {project.contributorCount}
           </span>
-          {project.openOpportunities > 0 && (
+          {project.openIssues > 0 && (
             <Badge variant="info" className="ml-auto text-2xs">
-              {project.openOpportunities} open
+              {project.openIssues} open
             </Badge>
           )}
         </div>

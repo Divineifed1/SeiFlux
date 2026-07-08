@@ -13,7 +13,7 @@ export interface Project {
   stars?: number;
   forks?: number;
   contributors?: number;
-  openOpps?: number;
+  openIssues?: number;
   createdAt?: string;
 }
 

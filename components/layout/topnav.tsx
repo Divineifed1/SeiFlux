@@ -10,6 +10,7 @@ import {
   LogOut,
   Shield,
   Menu,
+  Wallet,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { NotificationsPanel } from '@/components/layout/notifications-panel';
 import { useAuthStore } from '@/lib/store/auth-store';
+import { WalletButton } from '@/components/ui/wallet-button';
 import { initials } from '@/lib/utils';
 
 const ROLE_LABELS = {
@@ -83,6 +85,9 @@ export function TopNav({ onMobileMenuOpen, onSearchOpen }: TopNavProps) {
       </div>
 
       <div className="flex items-center gap-1 ml-auto">
+        {/* Wallet */}
+        <WalletButton />
+
         {/* Notifications */}
         <NotificationsPanel />
 

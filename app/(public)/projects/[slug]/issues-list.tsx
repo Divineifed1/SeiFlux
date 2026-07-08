@@ -17,7 +17,7 @@ const TYPE_CONFIG = {
   other:         { label: 'Other',   variant: 'muted' as const },
 };
 
-interface Opportunity {
+interface Issue {
   id: string;
   title: string;
   type: string;
@@ -26,27 +26,27 @@ interface Opportunity {
   applications: number;
 }
 
-interface OpportunitiesListProps {
-  opportunities: Opportunity[];
+interface IssuesListProps {
+  issues: Issue[];
   projectName: string;
 }
 
-export function OpportunitiesList({ opportunities, projectName }: OpportunitiesListProps) {
+export function IssuesList({ issues, projectName }: IssuesListProps) {
   return (
     <div className="space-y-3">
-      {opportunities.map((opp) => {
-        const diffConfig = DIFFICULTY_CONFIG[opp.difficulty as keyof typeof DIFFICULTY_CONFIG];
-        const typeConfig = TYPE_CONFIG[opp.type as keyof typeof TYPE_CONFIG];
+      {issues.map((issue) => {
+        const diffConfig = DIFFICULTY_CONFIG[issue.difficulty as keyof typeof DIFFICULTY_CONFIG];
+        const typeConfig = TYPE_CONFIG[issue.type as keyof typeof TYPE_CONFIG];
         return (
           <div
-            key={opp.id}
+            key={issue.id}
             className="rounded-lg border border-border bg-card p-4 hover:border-border/80 transition-colors"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <Badge variant={typeConfig?.variant ?? 'muted'} className="text-[10px]">
-                    {typeConfig?.label ?? opp.type}
+                    {typeConfig?.label ?? issue.type}
                   </Badge>
                   {diffConfig && (
                     <span
@@ -56,9 +56,9 @@ export function OpportunitiesList({ opportunities, projectName }: OpportunitiesL
                     </span>
                   )}
                 </div>
-                <h3 className="text-sm font-medium text-foreground mb-2">{opp.title}</h3>
+                <h3 className="text-sm font-medium text-foreground mb-2">{issue.title}</h3>
                 <div className="flex flex-wrap gap-1.5">
-                  {opp.skills.map((skill) => (
+                  {issue.skills.map((skill) => (
                     <span
                       key={skill}
                       className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground"
@@ -70,12 +70,12 @@ export function OpportunitiesList({ opportunities, projectName }: OpportunitiesL
               </div>
               <div className="flex flex-col items-end gap-2 shrink-0">
                 <span className="text-xs text-muted-foreground">
-                  {opp.applications} applied
+                  {issue.applications} applied
                 </span>
                 <ApplyDialog
-                  issueTitle={opp.title}
+                  issueTitle={issue.title}
                   projectName={projectName}
-                  skills={opp.skills}
+                  skills={issue.skills}
                 >
                   <Button size="sm" variant="outline-primary">Apply</Button>
                 </ApplyDialog>

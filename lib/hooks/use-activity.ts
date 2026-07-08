@@ -5,7 +5,7 @@ export type ActivityEventType =
   | 'contributor_joined'
   | 'pr_opened'
   | 'pr_merged'
-  | 'opportunity_posted'
+  | 'issue_posted'
   | 'application_submitted'
   | 'org_created';
 
@@ -33,11 +33,11 @@ const MOCK_ACTIVITY: ActivityEvent[] = [
   },
   {
     id: 'a2',
-    type: 'opportunity_posted',
+    type: 'issue_posted',
     actor: { name: 'SeiSwap Labs', handle: 'seiswap-labs', initials: 'SL' },
     target: 'Build NFT metadata indexer',
-    targetHref: '/dashboard/opportunities/opp-2',
-    description: 'posted a new bounty opportunity',
+    targetHref: '/dashboard/issues/issue-2',
+    description: 'posted a new bounty issue',
     createdAt: '15m ago',
     meta: { bounty: '500 SEI' },
   },
@@ -75,7 +75,7 @@ const MOCK_ACTIVITY: ActivityEvent[] = [
     actor: { name: 'Maria Santos', handle: 'mariasantos', initials: 'MS' },
     target: 'Build NFT metadata indexer',
     targetHref: '/dashboard/opportunities/opp-2',
-    description: 'applied to an opportunity',
+    description: 'applied to an issue',
     createdAt: '3h ago',
   },
   {
@@ -99,10 +99,10 @@ const MOCK_ACTIVITY: ActivityEvent[] = [
   },
   {
     id: 'a9',
-    type: 'opportunity_posted',
+    type: 'issue_posted',
     actor: { name: 'SeiNFT', handle: 'seinft', initials: 'SN' },
     target: 'Improve gas optimization in minting contract',
-    targetHref: '/dashboard/opportunities/opp-4',
+    targetHref: '/dashboard/issues/issue-4',
     description: 'posted a good-first-issue',
     createdAt: '8h ago',
   },

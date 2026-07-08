@@ -52,7 +52,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
       { label: 'Projects', href: '/dashboard/projects', icon: FolderKanban },
-      { label: 'Opportunities', href: '/dashboard/opportunities', icon: Zap },
+      { label: 'Issues', href: '/dashboard/issues', icon: Zap },
       { label: 'Contributors', href: '/dashboard/contributors', icon: Users },
       { label: 'Applications', href: '/dashboard/applications', icon: FileText, badge: 2 },
       { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart2 },

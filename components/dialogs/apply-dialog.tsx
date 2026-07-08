@@ -33,14 +33,14 @@ type FormValues = z.infer<typeof schema>;
 
 interface ApplyDialogProps {
   children: React.ReactNode;
-  opportunityTitle: string;
+  issueTitle: string;
   projectName: string;
   skills?: string[];
 }
 
 export function ApplyDialog({
   children,
-  opportunityTitle,
+  issueTitle,
   projectName,
   skills = [],
 }: ApplyDialogProps) {
@@ -74,7 +74,7 @@ export function ApplyDialog({
     toast({
       variant: 'success',
       title: 'Application submitted!',
-      description: `Your application for "${opportunityTitle}" has been sent to ${projectName}.`,
+      description: `Your application for "${issueTitle}" has been sent to ${projectName}.`,
     });
     setOpen(false);
     reset();
@@ -101,10 +101,10 @@ export function ApplyDialog({
           </div>
         </DialogHeader>
 
-        {/* Opportunity info */}
+        {/* Issue info */}
         <div className="rounded-lg bg-muted/40 border border-border/50 p-3 mb-2">
-          <p className="text-xs font-medium text-muted-foreground mb-1">Opportunity</p>
-          <p className="text-sm font-semibold text-foreground">{opportunityTitle}</p>
+          <p className="text-xs font-medium text-muted-foreground mb-1">Issue</p>
+          <p className="text-sm font-semibold text-foreground">{issueTitle}</p>
           {skills.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
               {skills.map((skill) => (

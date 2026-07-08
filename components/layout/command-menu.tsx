@@ -29,7 +29,7 @@ const ALL_COMMANDS: CommandItem[] = [
   // Manage
   { id: 'nav-orgs', label: 'Organizations', icon: Building2, href: '/dashboard/organizations', group: 'Manage' },
   { id: 'nav-projects', label: 'Projects', icon: FolderKanban, href: '/dashboard/projects', group: 'Manage' },
-  { id: 'nav-opps', label: 'Opportunities', icon: Zap, href: '/dashboard/opportunities', group: 'Manage', keywords: ['bounty', 'issue', 'job'] },
+  { id: 'nav-opps', label: 'Issues', icon: Zap, href: '/dashboard/issues', group: 'Manage', keywords: ['bounty', 'issue', 'job'] },
   { id: 'nav-contributors', label: 'Contributors', icon: Users, href: '/dashboard/contributors', group: 'Manage', keywords: ['devs', 'developers', 'team'] },
   { id: 'nav-applications', label: 'Applications', icon: FileText, href: '/dashboard/applications', group: 'Manage' },
   // Integrations
@@ -40,7 +40,7 @@ const ALL_COMMANDS: CommandItem[] = [
   { id: 'nav-admin', label: 'Admin Panel', icon: ShieldCheck, href: '/dashboard/admin', group: 'Admin', keywords: ['admin', 'moderation'] },
   // Quick actions
   { id: 'act-new-project', label: 'New Project', description: 'Start a new project wizard', icon: FolderKanban, href: '/dashboard/projects/new', group: 'Quick Actions', keywords: ['create', 'add'] },
-  { id: 'act-new-opp', label: 'Post Opportunity', description: 'Create a new opportunity', icon: Zap, href: '/dashboard/opportunities', group: 'Quick Actions', keywords: ['create', 'bounty', 'add'] },
+  { id: 'act-new-opp', label: 'Post Issue', description: 'Create a new issue', icon: Zap, href: '/dashboard/issues', group: 'Quick Actions', keywords: ['create', 'bounty', 'add'] },
 ];
 
 const GROUP_ORDER = ['Quick Actions', 'Navigation', 'Manage', 'Integrations', 'Account', 'Admin'];

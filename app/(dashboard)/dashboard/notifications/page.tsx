@@ -20,7 +20,7 @@ const TYPE_CONFIG: Record<
 > = {
   application_accepted: { label: 'Accepted', icon: CheckCircle2, color: 'text-green-400 bg-green-500/10' },
   application_rejected: { label: 'Rejected', icon: XCircle, color: 'text-red-400 bg-red-500/10' },
-  new_opportunity: { label: 'Opportunity', icon: Zap, color: 'text-yellow-400 bg-yellow-500/10' },
+  new_issue: { label: 'Issue', icon: Zap, color: 'text-yellow-400 bg-yellow-500/10' },
   maintainer_message: { label: 'Message', icon: MessageSquare, color: 'text-blue-400 bg-blue-500/10' },
   project_update: { label: 'Project', icon: Bell, color: 'text-primary bg-primary/10' },
   pr_merged: { label: 'PR Merged', icon: GitMerge, color: 'text-green-400 bg-green-500/10' },
@@ -31,7 +31,7 @@ const FILTER_TABS: { label: string; value: NotificationType | 'all' | 'unread' }
   { label: 'All', value: 'all' },
   { label: 'Unread', value: 'unread' },
   { label: 'Applications', value: 'application_accepted' },
-  { label: 'Opportunities', value: 'new_opportunity' },
+  { label: 'Issues', value: 'new_issue' },
   { label: 'Messages', value: 'maintainer_message' },
 ];
 
@@ -163,7 +163,7 @@ export default function NotificationsPage() {
                         variant={
                           notif.type === 'application_accepted' ? 'success'
                             : notif.type === 'application_rejected' ? 'destructive'
-                            : notif.type === 'new_opportunity' ? 'warning'
+                             : notif.type === 'new_issue' ? 'warning'
                             : 'muted'
                         }
                       >

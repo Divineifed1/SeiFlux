@@ -5,6 +5,8 @@ export interface User {
   avatar?: string;
   role: 'admin' | 'maintainer' | 'contributor';
   githubUsername?: string;
+  walletAddress?: string;
+  walletType?: string;
   createdAt: Date;
 }
 
@@ -39,12 +41,12 @@ export interface Project {
   starCount: number;
   forkCount: number;
   contributorCount: number;
-  openOpportunities: number;
+  openIssues: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface Opportunity {
+export interface Issue {
   id: string;
   projectId: string;
   project?: Project;
@@ -58,17 +60,31 @@ export interface Opportunity {
   createdAt: Date;
 }
 
+export interface Wave {
+  id: string;
+  name: string;
+  startsAt: Date;
+  endsAt: Date;
+  status: 'upcoming' | 'active' | 'completed';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Application {
   id: string;
-  opportunityId: string;
-  opportunity?: Opportunity;
+  issueId: string;
+  issue?: Issue;
   contributorId: string;
   contributor?: User;
+  waveId?: string;
+  wave?: Wave;
   coverLetter?: string;
   githubProfile?: string;
-  status: 'pending' | 'review' | 'approved' | 'rejected';
-  appliedAt: Date;
-  updatedAt: Date;
+  status: 'pending' | 'review' | 'approved' | 'rejected' | 'merged' | 'closed';
+  appliedAt?: Date;
+  updatedAt?: Date;
+  closedAt?: Date;
+  rolledOverAt?: Date;
 }
 
 export interface Contributor {

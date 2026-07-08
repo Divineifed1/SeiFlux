@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 export type NotificationType =
   | 'application_accepted'
   | 'application_rejected'
-  | 'new_opportunity'
+  | 'new_issue'
   | 'maintainer_message'
   | 'project_update'
   | 'pr_merged'
@@ -33,12 +33,12 @@ const MOCK_NOTIFICATIONS: Notification[] = [
   },
   {
     id: 'n2',
-    type: 'new_opportunity',
-    title: 'New Opportunity',
+    type: 'new_issue',
+    title: 'New Issue',
     message: 'SeiNFT Marketplace posted a new bounty: Build NFT metadata indexer.',
     read: false,
     createdAt: '18m ago',
-    href: '/dashboard/opportunities',
+    href: '/dashboard/issues',
     avatarInitials: 'SN',
   },
   {
@@ -83,12 +83,12 @@ const MOCK_NOTIFICATIONS: Notification[] = [
   },
   {
     id: 'n7',
-    type: 'new_opportunity',
-    title: 'New Opportunity Match',
+    type: 'new_issue',
+    title: 'New Issue Match',
     message: 'Based on your skills in Rust and TypeScript, you may be interested in: "Build staking rewards contract".',
     read: true,
     createdAt: '3d ago',
-    href: '/dashboard/opportunities',
+    href: '/dashboard/issues',
     avatarInitials: 'SF',
   },
   {

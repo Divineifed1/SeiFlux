@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import * as React from 'react';
 import Link from 'next/link';
 import {
   Edit,
@@ -47,14 +48,14 @@ const PROJECT = {
   stars: 1243,
   forks: 89,
   contributors: 18,
-  openOpportunities: 12,
+  openIssues: 12,
   totalApplications: 47,
   tags: ['DeFi', 'AMM', 'Concentrated Liquidity'],
   tech: ['Rust', 'TypeScript', 'React', 'CosmWasm'],
   lastUpdated: new Date(Date.now() - 1000 * 60 * 60 * 48),
 };
 
-const OPPORTUNITIES = [
+const ISSUES = [
   {
     id: '1', title: 'Implement price impact warnings in swap UI',
     type: 'feature', difficulty: 'intermediate',
@@ -128,9 +129,10 @@ const TYPE_BADGE: Record<string, 'destructive' | 'info' | 'muted' | 'warning' | 
 export default function DashboardProjectDetailPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const openOpps = OPPORTUNITIES.filter((o) => o.status === 'open').length;
+  const { slug } = React.use(params);
+  const openOpps = ISSUES.filter((o) => o.status === 'open').length;
   const pendingApps = APPLICATIONS.filter((a) => a.status === 'pending').length;
 
   return (
@@ -229,10 +231,10 @@ export default function DashboardProjectDetailPage({
       <Separator />
 
       {/* Tabs */}
-      <Tabs defaultValue="opportunities">
+      <Tabs defaultValue="issues">
         <TabsList>
-          <TabsTrigger value="opportunities">
-            Opportunities
+          <TabsTrigger value="issues">
+            Issues
             <Badge variant="muted" className="ml-1.5 text-[10px] px-1">
               {openOpps}
             </Badge>
@@ -247,44 +249,44 @@ export default function DashboardProjectDetailPage({
           </TabsTrigger>
         </TabsList>
 
-        {/* Opportunities tab */}
-        <TabsContent value="opportunities" className="mt-4 space-y-3">
-          {OPPORTUNITIES.length === 0 ? (
+        {/* Issues tab */}
+        <TabsContent value="issues" className="mt-4 space-y-3">
+          {ISSUES.length === 0 ? (
             <EmptyState
               icon={Zap}
-              title="No opportunities yet"
-              description="Publish contribution opportunities to attract developers to this project."
-              action={{ label: 'Create opportunity' }}
+              title="No issues yet"
+              description="Publish contribution issues to attract developers to this project."
+              action={{ label: 'Create issue' }}
               size="sm"
             />
           ) : (
-            OPPORTUNITIES.map((opp) => {
-              const diffConfig = DIFFICULTY_CONFIG[opp.difficulty as keyof typeof DIFFICULTY_CONFIG];
+            ISSUES.map((issue) => {
+              const diffConfig = DIFFICULTY_CONFIG[issue.difficulty as keyof typeof DIFFICULTY_CONFIG];
               return (
                 <div
-                  key={opp.id}
+                  key={issue.id}
                   className={`rounded-lg border bg-card p-4 transition-colors ${
-                    opp.status === 'closed' ? 'opacity-50 border-border/50' : 'border-border hover:border-border/80'
+                    issue.status === 'closed' ? 'opacity-50 border-border/50' : 'border-border hover:border-border/80'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <Badge variant={TYPE_BADGE[opp.type] || 'muted'} className="text-[10px]">
-                          {opp.type}
+                        <Badge variant={TYPE_BADGE[issue.type] || 'muted'} className="text-[10px]">
+                          {issue.type}
                         </Badge>
                         <span
                           className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ${diffConfig.class}`}
                         >
                           {diffConfig.label}
                         </span>
-                        {opp.status === 'closed' && (
+                        {issue.status === 'closed' && (
                           <Badge variant="muted" className="text-[10px]">Closed</Badge>
                         )}
                       </div>
-                      <h3 className="text-sm font-medium text-foreground mb-2">{opp.title}</h3>
+                      <h3 className="text-sm font-medium text-foreground mb-2">{issue.title}</h3>
                       <div className="flex flex-wrap gap-1.5 mb-2">
-                        {opp.skills.map((skill) => (
+                        {issue.skills.map((skill) => (
                           <span
                             key={skill}
                             className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground"
@@ -295,14 +297,14 @@ export default function DashboardProjectDetailPage({
                       </div>
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        Added {formatRelativeTime(opp.createdAt)}
+                        Added {formatRelativeTime(issue.createdAt)}
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-2 shrink-0">
                       <span className="text-xs text-muted-foreground">
-                        {opp.applications} applied
+                        {issue.applications} applied
                       </span>
-                      {opp.status === 'open' ? (
+                      {issue.status === 'open' ? (
                         <Button size="sm" variant="outline" className="text-xs h-7 text-destructive border-destructive/30 hover:bg-destructive/10">
                           Close
                         </Button>
@@ -325,7 +327,7 @@ export default function DashboardProjectDetailPage({
             <EmptyState
               icon={FileText}
               title="No applications yet"
-              description="Applications will appear here when contributors apply to your opportunities."
+              description="Applications will appear here when contributors apply to your issues."
               size="sm"
             />
           ) : (
@@ -334,7 +336,7 @@ export default function DashboardProjectDetailPage({
                 <thead>
                   <tr className="border-b border-border bg-muted/30">
                     <th className="text-left px-5 py-3 font-medium text-muted-foreground">Applicant</th>
-                    <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Opportunity</th>
+                    <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Issue</th>
                     <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Applied</th>
                     <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
                     <th className="px-4 py-3" />

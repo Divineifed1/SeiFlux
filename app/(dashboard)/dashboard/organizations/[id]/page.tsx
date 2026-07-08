@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import * as React from 'react';
 import Link from 'next/link';
 import {
   Settings,
@@ -85,7 +86,8 @@ const CONNECTED_REPOS = [
   { name: 'seiswap-subgraph', stars: 89, synced: false, lastSync: '2h ago' },
 ];
 
-export default function OrganizationDetailPage({ params }: { params: { id: string } }) {
+export default function OrganizationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params);
   return (
     <div className="space-y-6 max-w-5xl">
       <PageHeader
@@ -105,7 +107,7 @@ export default function OrganizationDetailPage({ params }: { params: { id: strin
           <>
             <StatusBadge status={ORG.status} />
             <Button variant="outline" size="sm" asChild>
-              <Link href={`/dashboard/organizations/${params.id}/settings`}>
+              <Link href={`/dashboard/organizations/${id}/settings`}>
                 <Settings className="h-4 w-4" />
                 Settings
               </Link>
@@ -397,9 +399,9 @@ export default function OrganizationDetailPage({ params }: { params: { id: strin
               <p className="text-2xl font-bold text-foreground tabular-nums">72%</p>
               <p className="text-xs text-green-400 mt-1">+7% vs last month</p>
             </div>
-            {/* Open opportunities */}
+            {/* Open issues */}
             <div className="rounded-xl border border-border bg-card p-4">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Open Opportunities</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Open Issues</p>
               <p className="text-2xl font-bold text-foreground tabular-nums">19</p>
               <p className="text-xs text-muted-foreground mt-1">across 4 projects</p>
             </div>

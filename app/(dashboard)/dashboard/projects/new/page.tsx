@@ -439,8 +439,8 @@ export default function NewProjectPage() {
                 <Link href={`/projects/${state.slug}`} target="_blank">View Project</Link>
               </Button>
               <Button size="sm" asChild>
-                <Link href="/dashboard/opportunities">
-                  Create First Opportunity
+                <Link href="/dashboard/issues">
+                  Create First Issue
                   <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
                 </Link>
               </Button>

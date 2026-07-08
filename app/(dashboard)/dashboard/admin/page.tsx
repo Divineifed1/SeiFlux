@@ -3,7 +3,7 @@ import * as React from 'react';
 import {
   ShieldCheck, Building2, FolderKanban, Users, FileText,
   CheckCircle2, XCircle, Clock, AlertTriangle, TrendingUp,
-  Eye, ArrowRight, Pause, PlayCircle, Ban, UserCheck,
+  Eye, ArrowRight, Pause, PlayCircle, Ban, UserCheck, Zap, Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MetricCard } from '@/components/design-system/metric-card';
 import { PageHeader } from '@/components/design-system/page-header';
 import { SectionHeader } from '@/components/design-system/section-header';
+import { WaveManagerDialog } from '@/components/dialogs/wave-manager-dialog';
+import { useWaves } from '@/lib/hooks/use-waves';
 import { toast } from '@/hooks/use-toast';
 
 // ─── Mock data ─────────────────────────────────────────────────────────────────
@@ -128,6 +130,56 @@ const ROLE_BADGE: Record<string, 'info' | 'muted'> = {
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
+function WaveList() {
+  const { data: waves = [], isLoading, refetch } = useWaves();
+
+  const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'muted'> = {
+    upcoming: 'warning',
+    active: 'success',
+    completed: 'muted',
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        {[1, 2].map((i) => (
+          <div key={i} className="h-20 rounded-lg bg-muted animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  if (waves.length === 0) {
+    return (
+      <p className="text-xs text-muted-foreground text-center py-6">No waves created yet. Use the button above to create one.</p>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {waves.map((wave) => (
+        <div key={wave.id} className="rounded-lg border border-border bg-card p-4 hover:border-border/80 transition-colors">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-sm font-medium text-foreground">{wave.name}</p>
+                <Badge variant={STATUS_VARIANT[wave.status] ?? 'muted'} className="text-[10px]">
+                  {wave.status}
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(wave.startsAt))}
+                {' → '}
+                {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(wave.endsAt))}
+              </p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [projects, setProjects] = React.useState(PENDING_PROJECTS);
   const [reports, setReports] = React.useState(REPORTED_ISSUES);
@@ -172,6 +224,14 @@ export default function AdminPage() {
     }
   };
 
+  function formatDate(date: Date): string {
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(new Date(date));
+  }
+
   return (
     <div className="space-y-6 max-w-6xl">
       <PageHeader
@@ -205,6 +265,9 @@ export default function AdminPage() {
             {projects.length > 0 && (
               <Badge variant="warning" className="ml-1.5 text-[10px] px-1">{projects.length}</Badge>
             )}
+          </TabsTrigger>
+          <TabsTrigger value="waves">
+            Waves
           </TabsTrigger>
           <TabsTrigger value="reports">
             Reports
@@ -263,6 +326,25 @@ export default function AdminPage() {
               </div>
             ))
           )}
+        </TabsContent>
+
+        {/* Waves */}
+        <TabsContent value="waves" className="mt-4">
+          <div className="rounded-lg border border-border bg-card p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-foreground">Contribution Waves</h3>
+              <WaveManagerDialog>
+                <Button size="sm" className="gap-1.5 text-xs">
+                  <Plus className="h-3.5 w-3.5" />
+                  Manage Waves
+                </Button>
+              </WaveManagerDialog>
+            </div>
+            <p className="text-xs text-muted-foreground mb-4">
+              Waves are 8-day contribution windows. Use the dialog to create, edit dates, or delete waves.
+            </p>
+            <WaveList />
+          </div>
         </TabsContent>
 
         {/* Reports */}

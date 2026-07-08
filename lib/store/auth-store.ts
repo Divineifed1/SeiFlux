@@ -11,6 +11,8 @@ export interface AuthUser {
   role: UserRole;
   avatar?: string;
   githubUsername?: string;
+  walletAddress?: string;
+  walletType?: string;
 }
 
 interface AuthState {
@@ -21,6 +23,7 @@ interface AuthState {
   logout: () => void;
   setLoading: (loading: boolean) => void;
   initializeFromStorage: () => void;
+  setWallet: (walletAddress: string, walletType: string) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -35,6 +38,12 @@ export const useAuthStore = create<AuthState>()(
       logout: () => set({ user: null, isAuthenticated: false, isLoading: false }),
 
       setLoading: (isLoading) => set({ isLoading }),
+
+      setWallet: (walletAddress: string, walletType: string) => {
+        const user = get().user;
+        if (!user) return;
+        set({ user: { ...user, walletAddress, walletType } });
+      },
 
       initializeFromStorage: () => {
         if (typeof window === 'undefined') return;

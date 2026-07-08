@@ -7,8 +7,8 @@ export interface Application {
   id: string;
   projectId: string;
   projectName: string;
-  opportunityId: string;
-  opportunityTitle: string;
+  issueId: string;
+  issueTitle: string;
   contributorId: string;
   contributorName: string;
   contributorHandle: string;
@@ -24,8 +24,8 @@ const MOCK_APPLICATIONS: Application[] = [
     id: '1',
     projectId: '1',
     projectName: 'SeiSwap DEX',
-    opportunityId: 'opp_1',
-    opportunityTitle: 'Build analytics dashboard',
+    issueId: 'issue_1',
+    issueTitle: 'Build analytics dashboard',
     contributorId: '3',
     contributorName: 'Marcus Webb',
     contributorHandle: 'mwebb_eng',
@@ -39,8 +39,8 @@ const MOCK_APPLICATIONS: Application[] = [
     id: '2',
     projectId: '2',
     projectName: 'SeiLend Protocol',
-    opportunityId: 'opp_2',
-    opportunityTitle: 'Improve indexer query performance',
+    issueId: 'issue_2',
+    issueTitle: 'Improve indexer query performance',
     contributorId: '2',
     contributorName: 'Sarah Kim',
     contributorHandle: 'sarah_builds',
@@ -53,8 +53,8 @@ const MOCK_APPLICATIONS: Application[] = [
     id: '3',
     projectId: '1',
     projectName: 'SeiSwap DEX',
-    opportunityTitle: 'Fix slippage calculation',
-    opportunityId: 'opp_3',
+    issueTitle: 'Fix slippage calculation',
+    issueId: 'issue_3',
     contributorId: '1',
     contributorName: 'Alex Chen',
     contributorHandle: 'alexc_dev',

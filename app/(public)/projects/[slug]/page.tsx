@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import * as React from 'react';
 import Link from 'next/link';
 import {
   Star,
@@ -18,7 +19,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StatusBadge } from '@/components/design-system/status-badge';
 import { GithubIcon } from '@/components/ui/github-icon';
-import { OpportunitiesList } from './opportunities-list';
+import { IssuesList } from './issues-list';
 
 export const metadata: Metadata = { title: 'Project' };
 
@@ -45,7 +46,7 @@ const PROJECT = {
   github: 'https://github.com/seiswap/seiswap-dex',
 };
 
-const OPPORTUNITIES = [
+const ISSUES = [
   {
     id: '1',
     title: 'Implement price impact warnings in swap UI',
@@ -80,7 +81,8 @@ const OPPORTUNITIES = [
   },
 ];
 
-export default function ProjectPage({ params }: { params: { slug: string } }) {
+export default function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = React.use(params);
   return (
     <div className="pt-20 pb-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -158,22 +160,22 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
             <Separator className="mb-6" />
 
             {/* Tabs */}
-            <Tabs defaultValue="opportunities">
-              <TabsList className="mb-6">
-                <TabsTrigger value="opportunities">
-                  Opportunities{' '}
-                  <Badge variant="muted" className="ml-1.5 text-[10px] px-1">
-                    {OPPORTUNITIES.length}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger value="about">About</TabsTrigger>
-              </TabsList>
+              <Tabs defaultValue="issues">
+                <TabsList className="mb-6">
+                  <TabsTrigger value="issues">
+                    Issues{' '}
+                    <Badge variant="muted" className="ml-1.5 text-[10px] px-1">
+                      {ISSUES.length}
+                    </Badge>
+                  </TabsTrigger>
+                  <TabsTrigger value="about">About</TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="opportunities">
-                <OpportunitiesList
-                  opportunities={OPPORTUNITIES}
-                  projectName={PROJECT.name}
-                />
+                <TabsContent value="issues">
+                  <IssuesList
+                    issues={ISSUES}
+                    projectName={PROJECT.name}
+                  />
               </TabsContent>
 
               <TabsContent value="about">
@@ -193,7 +195,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
             {/* CTA */}
             <div className="rounded-xl border border-primary/20 bg-primary/5 p-5">
               <p className="text-sm font-semibold text-foreground mb-1">
-                {PROJECT.openOpportunities} open opportunities
+                 {PROJECT.openOpportunities} open issues
               </p>
               <p className="text-xs text-muted-foreground mb-4">
                 Join {PROJECT.contributors} contributors already building this project.

@@ -28,7 +28,7 @@ const EVENT_CONFIG: Record<
   pr_opened: { label: 'PR Opened', icon: GitPullRequest, color: 'text-blue-400 bg-blue-500/10', badgeVariant: 'info' },
   project_created: { label: 'New Project', icon: Plus, color: 'text-primary bg-primary/10', badgeVariant: 'info' },
   contributor_joined: { label: 'New Contributor', icon: Users, color: 'text-purple-400 bg-purple-500/10', badgeVariant: 'muted' },
-  opportunity_posted: { label: 'Opportunity', icon: Zap, color: 'text-yellow-400 bg-yellow-500/10', badgeVariant: 'warning' },
+  issue_posted: { label: 'Issue', icon: Zap, color: 'text-yellow-400 bg-yellow-500/10', badgeVariant: 'warning' },
   application_submitted: { label: 'Application', icon: FileText, color: 'text-muted-foreground bg-muted', badgeVariant: 'muted' },
   org_created: { label: 'New Org', icon: Building2, color: 'text-orange-400 bg-orange-500/10', badgeVariant: 'warning' },
 };
@@ -38,7 +38,7 @@ const FILTER_OPTIONS: { label: string; value: ActivityEventType | 'all' }[] = [
   { label: 'PRs', value: 'pr_merged' },
   { label: 'Projects', value: 'project_created' },
   { label: 'Contributors', value: 'contributor_joined' },
-  { label: 'Opportunities', value: 'opportunity_posted' },
+  { label: 'Issues', value: 'issue_posted' },
   { label: 'Applications', value: 'application_submitted' },
 ];
 

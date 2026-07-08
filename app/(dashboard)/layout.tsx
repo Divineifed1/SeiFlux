@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { TopNav } from '@/components/layout/topnav';
 import { MobileSidebar } from '@/components/layout/mobile-sidebar';
 import { CommandMenu } from '@/components/layout/command-menu';
+import { WaveBanner } from '@/components/wave/wave-banner';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = React.useState(false);
@@ -41,6 +42,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           onMobileMenuOpen={() => setMobileOpen(true)}
           onSearchOpen={() => setCommandOpen(true)}
         />
+        <WaveBanner />
         <main className="flex-1 overflow-y-auto">
           <div className="p-4 lg:p-6">{children}</div>
         </main>

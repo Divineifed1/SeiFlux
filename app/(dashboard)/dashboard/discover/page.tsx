@@ -12,7 +12,7 @@ import { PageHeader } from '@/components/design-system/page-header';
 import { MetricCard } from '@/components/design-system/metric-card';
 import { EmptyState } from '@/components/design-system/empty-state';
 import { useProjects } from '@/lib/hooks/use-projects';
-import { useOpportunities } from '@/lib/hooks/use-opportunities';
+import { useIssues } from '@/lib/hooks/use-issues';
 import { useContributors } from '@/lib/hooks/use-contributors';
 import { cn } from '@/lib/utils';
 
@@ -43,7 +43,7 @@ const SORT_OPTIONS = [
   { label: 'Most Stars', value: 'stars' },
   { label: 'Most Contributors', value: 'contributors' },
   { label: 'Newest', value: 'newest' },
-  { label: 'Most Opportunities', value: 'opportunities' },
+  { label: 'Most Issues', value: 'issues' },
 ];
 
 const RECOMMENDED_TAGS = [
@@ -54,15 +54,15 @@ const RECOMMENDED_TAGS = [
 
 interface DiscoverProject {
   id: string;
-  title: string;
+  name: string;
   organizationName: string;
   description: string;
   tags: string[];
   techStack: string[];
-  starCount: number;
-  forkCount: number;
-  contributorCount: number;
-  openOpportunities: number;
+  stars: number;
+  forks: number;
+  contributors: number;
+  openIssues: number;
   slug: string;
   status: string;
 }
@@ -76,13 +76,13 @@ function ProjectCard({ project }: { project: DiscoverProject }) {
             href={`/dashboard/projects/${project.slug}`}
             className="text-sm font-semibold text-foreground hover:text-primary transition-colors line-clamp-1 group-hover:text-primary"
           >
-            {project.title}
+            {project.name}
           </Link>
           <p className="text-xs text-muted-foreground mt-0.5">{project.organizationName}</p>
         </div>
-        {project.openOpportunities > 0 && (
+        {project.openIssues > 0 && (
           <Badge variant="success" className="text-[10px] shrink-0">
-            {project.openOpportunities} open
+            {project.openIssues} open
           </Badge>
         )}
       </div>
@@ -92,7 +92,7 @@ function ProjectCard({ project }: { project: DiscoverProject }) {
       </p>
 
       <div className="flex flex-wrap gap-1.5 mb-4">
-        {project.tags.map((tag) => (
+        {(project.tags ?? []).map((tag) => (
           <Badge key={tag} variant="info" className="text-[10px] px-1.5">{tag}</Badge>
         ))}
         {project.techStack.slice(0, 3).map((tech) => (
@@ -105,9 +105,9 @@ function ProjectCard({ project }: { project: DiscoverProject }) {
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
-          <span className="flex items-center gap-1"><Star className="h-3 w-3" />{project.starCount}</span>
-          <span className="flex items-center gap-1"><GitFork className="h-3 w-3" />{project.forkCount}</span>
-          <span className="flex items-center gap-1"><Users className="h-3 w-3" />{project.contributorCount}</span>
+          <span className="flex items-center gap-1"><Star className="h-3 w-3" />{project.stars}</span>
+          <span className="flex items-center gap-1"><GitFork className="h-3 w-3" />{project.forks}</span>
+          <span className="flex items-center gap-1"><Users className="h-3 w-3" />{project.contributors}</span>
         </div>
         <Button variant="outline" size="sm" className="h-7 text-xs" asChild>
           <Link href={`/dashboard/projects/${project.slug}`}>View</Link>
@@ -128,15 +128,14 @@ export default function DiscoverPage() {
   const [hasBounty, setHasBounty] = React.useState(false);
   const [showFilters, setShowFilters] = React.useState(false);
   const [activeTag, setActiveTag] = React.useState<string | null>(null);
-  const [activeView, setActiveView] = React.useState<'projects' | 'opportunities' | 'contributors'>('projects');
+  const [activeView, setActiveView] = React.useState<'projects' | 'issues' | 'contributors'>('projects');
 
   const { data: projects = [], isLoading: projectsLoading } = useProjects();
-  const { data: opportunities = [], isLoading: oppsLoading } = useOpportunities();
+  const { data: opportunities = [], isLoading: issuesLoading } = useIssues();
   const { data: contributors = [], isLoading: contribsLoading } = useContributors();
 
-  const isLoading = projectsLoading || oppsLoading || contribsLoading;
+  const isLoading = projectsLoading || issuesLoading || contribsLoading;
 
-  // ── filter projects ──
   const filteredProjects = React.useMemo(() => {
     let out = [...projects];
 
@@ -144,41 +143,45 @@ export default function DiscoverPage() {
       const q = search.toLowerCase();
       out = out.filter(
         (p) =>
-          p.title.toLowerCase().includes(q) ||
+          p.name.toLowerCase().includes(q) ||
           p.description.toLowerCase().includes(q) ||
-          p.organizationName.toLowerCase().includes(q) ||
-          p.techStack.some((t) => t.toLowerCase().includes(q)) ||
-          p.tags.some((t) => t.toLowerCase().includes(q)),
+          (p.organizationId ?? '').toLowerCase().includes(q) ||
+          (p.tech ?? []).some((t) => t.toLowerCase().includes(q)) ||
+          (p.tags ?? []).some((t) => t.toLowerCase().includes(q)),
       );
     }
 
     if (category !== 'all') {
-      out = out.filter((p) => p.tags.some((t) => t.toLowerCase() === category.toLowerCase()));
+      out = out.filter((p) => (p.tags ?? []).some((t) => t.toLowerCase() === category.toLowerCase()));
     }
 
     if (language !== 'All') {
-      out = out.filter((p) => p.techStack.some((t) => t.toLowerCase() === language.toLowerCase()));
+      out = out.filter((p) => (p.tech ?? []).some((t) => t.toLowerCase() === language.toLowerCase()));
     }
 
     if (activeTag) {
       const tag = activeTag;
       out = out.filter(
         (p) =>
-          p.tags.some((t) => t.toLowerCase().includes(tag.toLowerCase())) ||
-          p.techStack.some((t) => t.toLowerCase().includes(tag.toLowerCase())),
+          (p.tags ?? []).some((t) => t.toLowerCase().includes(tag.toLowerCase())) ||
+          (p.tech ?? []).some((t) => t.toLowerCase().includes(tag.toLowerCase())),
       );
     }
 
-    if (sort === 'stars') out = out.sort((a, b) => b.starCount - a.starCount);
-    else if (sort === 'contributors') out = out.sort((a, b) => b.contributorCount - a.contributorCount);
-    else if (sort === 'opportunities') out = out.sort((a, b) => b.openOpportunities - a.openOpportunities);
-    else if (sort === 'newest') out = out.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    if (sort === 'stars') out = out.sort((a, b) => (b.stars ?? 0) - (a.stars ?? 0));
+    else if (sort === 'contributors') out = out.sort((a, b) => (b.contributors ?? 0) - (a.contributors ?? 0));
+    else if (sort === 'issues') out = out.sort((a, b) => (b.openIssues ?? 0) - (a.openIssues ?? 0));
+    else if (sort === 'newest') out = out.sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
 
     return out;
   }, [projects, search, category, language, activeTag, sort]);
 
-  // ── filter opportunities ──
-  const filteredOpps = React.useMemo(() => {
+  // ── filter issues ──
+  const filteredIssues = React.useMemo(() => {
     let out = [...opportunities];
 
     if (search.trim()) {
@@ -233,6 +236,21 @@ export default function DiscoverPage() {
     setHasBounty(false);
     setActiveTag(null);
   }
+
+  const displayedProjects = React.useMemo<DiscoverProject[]>(() => filteredProjects.map((p) => ({
+    id: p.id,
+    name: p.name,
+    organizationName: p.organizationId ?? '',
+    description: p.description,
+    tags: p.tags ?? [],
+    techStack: p.tech ?? [],
+    stars: p.stars ?? 0,
+    forks: p.forks ?? 0,
+    contributors: p.contributors ?? 0,
+    openIssues: p.openIssues ?? 0,
+    slug: p.slug,
+    status: p.status,
+  })), [filteredProjects]);
 
   return (
     <div className="space-y-6 max-w-6xl">
@@ -299,7 +317,7 @@ export default function DiscoverPage() {
       {/* View tabs + filter toggle */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-1 p-0.5 rounded-lg bg-muted">
-          {(['projects', 'opportunities', 'contributors'] as const).map((v) => (
+          {(['projects', 'issues', 'contributors'] as const).map((v) => (
             <button
               key={v}
               onClick={() => setActiveView(v)}
@@ -311,7 +329,7 @@ export default function DiscoverPage() {
               )}
             >
               {v === 'projects' ? `Projects (${filteredProjects.length})`
-                : v === 'opportunities' ? `Opportunities (${filteredOpps.length})`
+                : v === 'issues' ? `Issues (${filteredIssues.length})`
                 : `Contributors (${filteredContribs.length})`}
             </button>
           ))}
@@ -463,7 +481,7 @@ export default function DiscoverPage() {
           ))}
         </div>
       ) : activeView === 'projects' ? (
-        filteredProjects.length === 0 ? (
+        displayedProjects.length === 0 ? (
           <EmptyState
             icon={Search}
             title="No projects found"
@@ -471,65 +489,65 @@ export default function DiscoverPage() {
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredProjects.map((project) => (
+            {displayedProjects.map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
           </div>
         )
-      ) : activeView === 'opportunities' ? (
-        filteredOpps.length === 0 ? (
+      ) : activeView === 'issues' ? (
+        filteredIssues.length === 0 ? (
           <EmptyState
             icon={Zap}
-            title="No opportunities found"
+            title="No issues found"
             description="Try adjusting your search or filters."
           />
         ) : (
           <div className="space-y-3">
-            {filteredOpps.map((opp) => (
-              <div key={opp.id} className="rounded-xl border border-border bg-card p-5 hover:border-border/70 transition-colors">
+            {filteredIssues.map((issue) => (
+              <div key={issue.id} className="rounded-xl border border-border bg-card p-5 hover:border-border/70 transition-colors">
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-1">
                       <Badge
                         variant={
-                          opp.type === 'good-first-issue' ? 'success'
-                            : opp.type === 'bounty' ? 'warning'
-                            : opp.type === 'documentation' ? 'info'
-                            : opp.type === 'bug-fix' ? 'destructive'
+                          issue.type === 'good-first-issue' ? 'success'
+                            : issue.type === 'bounty' ? 'warning'
+                            : issue.type === 'documentation' ? 'info'
+                            : issue.type === 'bug-fix' ? 'destructive'
                             : 'muted'
                         }
                         className="text-[10px] capitalize"
                       >
-                        {opp.type.replace(/-/g, ' ')}
+                        {issue.type.replace(/-/g, ' ')}
                       </Badge>
                       <span className={cn(
                         'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border',
-                        opp.difficulty === 'beginner' ? 'text-green-400 bg-green-500/10 border-green-500/20'
-                          : opp.difficulty === 'intermediate' ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20'
+                        issue.difficulty === 'beginner' ? 'text-green-400 bg-green-500/10 border-green-500/20'
+                          : issue.difficulty === 'intermediate' ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20'
                           : 'text-red-400 bg-red-500/10 border-red-500/20',
                       )}>
-                        {opp.difficulty}
+                        {issue.difficulty}
                       </span>
-                      {opp.bountyAmount && (
+                      {issue.bountyAmount && (
                         <Badge variant="warning" className="text-[10px]">
-                          {opp.bountyAmount} {opp.bountyToken}
+                          {issue.bountyAmount} {issue.bountyToken}
                         </Badge>
                       )}
                     </div>
                     <Link
-                      href={`/dashboard/opportunities/${opp.id}`}
+                      href={`/dashboard/issues/${issue.id}`}
                       className="text-sm font-semibold text-foreground hover:text-primary transition-colors"
                     >
-                      {opp.title}
+                      {issue.title}
                     </Link>
-                    <p className="text-xs text-muted-foreground mt-0.5">{opp.projectName} · {opp.organizationName}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{issue.projectName} · {issue.organizationName}</p>
                   </div>
                   <Button variant="outline" size="sm" className="text-xs h-7 shrink-0" asChild>
-                    <Link href={`/dashboard/opportunities/${opp.id}`}>Apply</Link>
+                    <Link href={`/dashboard/issues/${issue.id}`}>Apply</Link>
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-1.5 mt-3">
-                  {opp.skills.slice(0, 5).map((skill) => (
+                  {issue.skills.slice(0, 5).map((skill) => (
                     <Badge key={skill} variant="muted" className="text-[10px] px-1.5">{skill}</Badge>
                   ))}
                 </div>
