@@ -5,7 +5,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ProjectsModule } from './projects/projects.module';
-import { OpportunitiesModule } from './opportunities/opportunities.module';
+import { IssuesModule } from './issues/issues.module';
+import { WavesModule } from './waves/waves.module';
+import { ApplicationsModule } from './applications/applications.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { UsersModule } from './users/users.module';
 
@@ -41,7 +43,9 @@ import { UsersModule } from './users/users.module';
     }),
     AuthModule,
     ProjectsModule,
-    OpportunitiesModule,
+    IssuesModule,
+    WavesModule,
+    ApplicationsModule,
     OrganizationsModule,
     UsersModule,
   ],
