@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/design-system/page-header';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export const metadata: Metadata = { title: 'Settings' };
 
@@ -119,10 +120,10 @@ export default function SettingsPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-foreground">Dark mode</p>
-              <p className="text-xs text-muted-foreground">Always on — blockchain-native design</p>
+              <p className="text-sm font-medium text-foreground">Theme</p>
+              <p className="text-xs text-muted-foreground">Use light or dark mode across the app.</p>
             </div>
-            <Switch defaultChecked disabled />
+            <ThemeToggle />
           </div>
         </div>
       </SettingsSection>

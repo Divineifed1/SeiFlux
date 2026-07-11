@@ -15,7 +15,7 @@ export class AuthController {
   async githubCallback(@Req() req, @Res() res) {
     const result = await this.authService.login(req.user);
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    res.redirect(`${frontendUrl}/auth/callback?token=${result.access_token}&user=${encodeURIComponent(JSON.stringify(result.user))}`);
+    res.redirect(`${frontendUrl}/callback?token=${result.access_token}&user=${encodeURIComponent(JSON.stringify(result.user))}`);
   }
 
   @Get('me')

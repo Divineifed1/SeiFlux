@@ -54,6 +54,7 @@ export interface Issue {
   description: string;
   type: 'bug' | 'feature' | 'documentation' | 'design' | 'other';
   difficulty: 'beginner' | 'intermediate' | 'advanced';
+  points: number;
   skills: string[];
   isOpen: boolean;
   applicationCount: number;

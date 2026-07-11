@@ -22,6 +22,7 @@ interface Issue {
   title: string;
   type: string;
   difficulty: string;
+  points: number;
   skills: string[];
   applications: number;
 }
@@ -52,7 +53,7 @@ export function IssuesList({ issues, projectName }: IssuesListProps) {
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ${diffConfig.className}`}
                     >
-                      {diffConfig.label}
+                      {diffConfig.label} · {issue.points} pts
                     </span>
                   )}
                 </div>

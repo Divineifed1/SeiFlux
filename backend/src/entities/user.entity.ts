@@ -16,21 +16,21 @@ export class User {
   @Column({ nullable: true })
   avatar?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'github_id' })
   githubId?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'github_username' })
   githubUsername?: string;
 
   @Column({ type: 'enum', enum: ['admin', 'maintainer', 'contributor'], default: 'contributor' })
   role: UserRole;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'organization_id' })
   organizationId?: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }

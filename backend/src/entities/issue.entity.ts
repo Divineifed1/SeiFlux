@@ -16,7 +16,7 @@ export class Issue {
   @Column({ type: 'text' })
   description: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'project_id' })
   projectId: string;
 
   @Column({ type: 'enum', enum: ['good-first-issue', 'bounty', 'documentation', 'bug-fix', 'feature'] })
@@ -28,27 +28,30 @@ export class Issue {
   @Column({ type: 'enum', enum: ['beginner', 'intermediate', 'advanced'] })
   difficulty: DifficultyLevel;
 
+  @Column({ default: 0, name: 'points' })
+  points: number;
+
   @Column({ type: 'simple-array', nullable: true })
   skills: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'bounty_amount' })
   bountyAmount?: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'bounty_token' })
   bountyToken?: string;
 
   @Column({ type: 'simple-array', nullable: true })
   requirements: string;
 
-  @Column({ default: 0 })
+  @Column({ default: 0, name: 'applicant_count' })
   applicantCount: number;
 
-  @Column({ default: 0 })
+  @Column({ default: 0, name: 'view_count' })
   viewCount: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }

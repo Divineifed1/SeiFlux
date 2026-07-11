@@ -29,10 +29,10 @@ const TYPE_BADGE_VARIANT: Record<string, 'success' | 'info' | 'warning' | 'muted
   'feature': 'muted',
 };
 
-const DIFFICULTY_COLOR: Record<string, string> = {
-  beginner: 'text-green-400 bg-green-500/10 border-green-500/20',
-  intermediate: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20',
-  advanced: 'text-red-400 bg-red-500/10 border-red-500/20',
+const DIFFICULTY_CONFIG: Record<string, { label: string; points: number; className: string }> = {
+  beginner: { label: 'Beginner', points: 50, className: 'text-green-400 bg-green-500/10 border-green-500/20' },
+  intermediate: { label: 'Intermediate', points: 75, className: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20' },
+  advanced: { label: 'Advanced', points: 100, className: 'text-red-400 bg-red-500/10 border-red-500/20' },
 };
 
 function IssueCard({ issue }: { issue: Issue }) {
@@ -44,9 +44,12 @@ function IssueCard({ issue }: { issue: Issue }) {
             <Badge variant={TYPE_BADGE_VARIANT[issue.type] ?? 'muted'} className="text-[10px] capitalize">
               {issue.type.replace(/-/g, ' ')}
             </Badge>
-            <span className={cn('inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border', DIFFICULTY_COLOR[issue.difficulty])}>
-              {issue.difficulty}
+            <span className={cn('inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border', DIFFICULTY_CONFIG[issue.difficulty]?.className)}>
+              {DIFFICULTY_CONFIG[issue.difficulty]?.label ?? issue.difficulty}
             </span>
+            <Badge variant="info" className="text-[10px]">
+              {issue.points} pts
+            </Badge>
             {issue.bountyAmount && (
               <Badge variant="warning" className="text-[10px]">
                 {issue.bountyAmount} {issue.bountyToken}

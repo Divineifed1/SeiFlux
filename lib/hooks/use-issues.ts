@@ -15,6 +15,7 @@ export interface Issue {
   type: IssueType;
   status: IssueStatus;
   difficulty: DifficultyLevel;
+  points: number;
   skills: string[];
   bountyAmount?: number;
   bountyToken?: string;

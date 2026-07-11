@@ -52,9 +52,9 @@ const TYPE_OPTIONS = [
 ];
 
 const DIFFICULTY_CONFIG = {
-  beginner: { label: 'Beginner', description: 'Good for first-time contributors', color: 'text-green-400' },
-  intermediate: { label: 'Intermediate', description: 'Requires some project knowledge', color: 'text-yellow-400' },
-  advanced: { label: 'Advanced', description: 'Deep domain expertise needed', color: 'text-red-400' },
+  beginner: { label: 'Beginner', description: 'Good for first-time contributors', color: 'text-green-400', points: 50 },
+  intermediate: { label: 'Intermediate', description: 'Requires some project knowledge', color: 'text-yellow-400', points: 75 },
+  advanced: { label: 'Advanced', description: 'Deep domain expertise needed', color: 'text-red-400', points: 100 },
 };
 
 export function CreateIssueDialog({
@@ -199,6 +199,9 @@ export function CreateIssueDialog({
                       </span>
                       <span className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
                         {config.description}
+                      </span>
+                      <span className="text-[10px] font-medium text-primary mt-0.5">
+                        {config.points} pts
                       </span>
                     </button>
                   ))}

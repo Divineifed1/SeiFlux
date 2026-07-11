@@ -25,15 +25,15 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
       clientSecret.includes('replace');
 
     if (hasPlaceholderValues) {
-      throw new Error(
-        'GitHub OAuth is not configured. Create a GitHub OAuth App and set valid GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, and GITHUB_CALLBACK_URL in backend/.env.',
+      console.warn(
+        'GitHub OAuth is not configured. Set valid GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, and GITHUB_CALLBACK_URL in backend/.env.',
       );
     }
 
     super({
-      clientID,
-      clientSecret,
-      callbackURL,
+      clientID: clientID || 'placeholder-client-id',
+      clientSecret: clientSecret || 'placeholder-client-secret',
+      callbackURL: callbackURL || 'http://localhost:3000/auth/github/callback',
       scope: ['user:email', 'read:org'],
     });
   }

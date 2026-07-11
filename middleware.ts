@@ -19,7 +19,6 @@ export function middleware(request: NextRequest) {
 
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
 
-  // Redirect unauthenticated users away from protected routes
   if (isProtectedRoute && !isAuthenticated) {
     const signInUrl = new URL('/sign-in', request.url);
     signInUrl.searchParams.set('from', pathname);

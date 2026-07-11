@@ -5,8 +5,11 @@ export async function loginWithGithub() {
 }
 
 export async function handleAuthCallback(token: string, user: any) {
+  if (typeof window === 'undefined') return;
+
   localStorage.setItem('auth_token', token);
   localStorage.setItem('auth_user', JSON.stringify(user));
+  document.cookie = `sei_auth_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}`;
 }
 
 export function logout() {

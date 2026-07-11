@@ -526,7 +526,7 @@ export default function DiscoverPage() {
                           : issue.difficulty === 'intermediate' ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20'
                           : 'text-red-400 bg-red-500/10 border-red-500/20',
                       )}>
-                        {issue.difficulty}
+                        {issue.difficulty} · {issue.points} pts
                       </span>
                       {issue.bountyAmount && (
                         <Badge variant="warning" className="text-[10px]">

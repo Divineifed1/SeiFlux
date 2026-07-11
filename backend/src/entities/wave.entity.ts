@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 export type WaveStatus = 'upcoming' | 'active' | 'completed';
 
@@ -10,18 +10,24 @@ export class Wave {
   @Column()
   name: string;
 
-  @Column({ type: 'timestamptz' })
+  @Column({ type: 'timestamptz', name: 'startsat' })
   startsAt: Date;
 
-  @Column({ type: 'timestamptz' })
+  @Column({ type: 'timestamptz', name: 'endsat' })
   endsAt: Date;
 
   @Column({ type: 'enum', enum: ['upcoming', 'active', 'completed'], default: 'upcoming' })
   status: WaveStatus;
 
-  @CreateDateColumn()
+  @Column({ type: 'timestamptz', name: 'createdat', nullable: true })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @Column({ type: 'timestamptz', name: 'updatedat', nullable: true })
   updatedAt: Date;
+
+  @Column({ name: 'totalpoints', default: 0 })
+  totalPoints: number;
+
+  @Column({ name: 'participantcount', default: 0 })
+  participantCount: number;
 }

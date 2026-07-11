@@ -18,6 +18,13 @@ export class AuthService {
     let user = await this.userRepository.findOne({ where: { githubId: id } });
 
     if (!user) {
+      const email = emails?.[0]?.value;
+      if (email) {
+        user = await this.userRepository.findOne({ where: { email } });
+      }
+    }
+
+    if (!user) {
       user = this.userRepository.create({
         githubId: id,
         email: emails[0].value,
@@ -26,6 +33,9 @@ export class AuthService {
         githubUsername: username,
         role: 'contributor',
       });
+      await this.userRepository.save(user);
+    } else if (!user.githubId) {
+      user.githubId = id;
       await this.userRepository.save(user);
     }
 

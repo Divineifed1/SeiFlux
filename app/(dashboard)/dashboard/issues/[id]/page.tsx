@@ -145,6 +145,7 @@ export default function IssueDetailPage() {
         <MetricCard title="Views" value={issue.viewCount} icon={Eye} />
         <MetricCard title="Days Open" value={issue.daysOpen} icon={Clock} />
         <MetricCard title="Difficulty" value={issue.difficulty} icon={BarChart2} />
+        <MetricCard title="Points" value={issue.points} icon={BarChart2} />
       </div>
 
       {/* Two-column layout */}
@@ -163,7 +164,7 @@ export default function IssueDetailPage() {
                   : issue.difficulty === 'intermediate' ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20'
                   : 'text-red-400 bg-red-500/10 border-red-500/20'
               )}>
-                {issue.difficulty}
+                {issue.difficulty} · {issue.points} pts
               </span>
               {issue.bountyAmount && (
                 <Badge variant="warning" className="text-xs">

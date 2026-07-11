@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Wave } from '../entities/wave.entity';
@@ -15,7 +15,7 @@ export class WavesController {
 
   @Get()
   async findAll() {
-    return this.waveRepository.find({ order: { createdAt: 'DESC' } });
+    return this.waveRepository.find({ order: { startsAt: 'DESC' } });
   }
 
   @Get('current')
@@ -54,28 +54,6 @@ export class WavesController {
 
     wave.status = 'completed';
     await this.waveRepository.save(wave);
-
-    const nextWave = await this.waveRepository.findOne({
-      where: { status: 'upcoming' },
-      order: { startsAt: 'ASC' },
-    });
-
-    if (nextWave) {
-      const pendingApplications = await this.applicationRepository.find({
-        where: { waveId: id, status: 'pending' },
-      });
-
-      for (const app of pendingApplications) {
-        const rolledOver = this.applicationRepository.create({
-          ...app,
-          id: undefined,
-          waveId: nextWave.id,
-          rolledOverAt: new Date(),
-          status: 'pending',
-        });
-        await this.applicationRepository.save(rolledOver);
-      }
-    }
 
     return { message: 'Wave closed', waveId: id };
   }

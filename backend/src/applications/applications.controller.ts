@@ -11,10 +11,9 @@ export class ApplicationsController {
   ) {}
 
   @Get()
-  async findAll(@Query('waveId') waveId?: string, @Query('issueId') issueId?: string) {
+  async findAll(@Query('opportunityId') opportunityId?: string) {
     const where: Record<string, unknown> = {};
-    if (waveId) where.waveId = waveId;
-    if (issueId) where.issueId = issueId;
+    if (opportunityId) where.opportunityId = opportunityId;
     return this.applicationRepository.find({ where, order: { appliedAt: 'DESC' } });
   }
 
@@ -24,13 +23,12 @@ export class ApplicationsController {
   }
 
   @Post()
-  async create(@Body() body: { issueId: string; contributorId?: string; waveId?: string; coverLetter?: string; githubProfile?: string }) {
+  async create(@Body() body: { opportunityId: string; applicantName: string; applicantHandle: string; message?: string }) {
     const application = this.applicationRepository.create({
-      issueId: body.issueId,
-      contributorId: body.contributorId,
-      waveId: body.waveId,
-      coverLetter: body.coverLetter,
-      githubProfile: body.githubProfile,
+      opportunityId: body.opportunityId,
+      applicantName: body.applicantName,
+      applicantHandle: body.applicantHandle,
+      message: body.message,
       status: 'pending',
       appliedAt: new Date(),
     });
@@ -45,7 +43,7 @@ export class ApplicationsController {
 
   @Post(':id/reject')
   async reject(@Param('id') id: string) {
-    await this.applicationRepository.update(id, { status: 'rejected', closedAt: new Date() });
+    await this.applicationRepository.update(id, { status: 'rejected' });
     return { message: 'Application rejected' };
   }
 
@@ -57,7 +55,7 @@ export class ApplicationsController {
 
   @Post(':id/close')
   async close(@Param('id') id: string) {
-    await this.applicationRepository.update(id, { status: 'closed', closedAt: new Date() });
+    await this.applicationRepository.update(id, { status: 'closed' });
     return { message: 'Application closed' };
   }
 }

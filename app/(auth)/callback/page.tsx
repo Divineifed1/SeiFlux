@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Zap } from 'lucide-react';
-import { useAuthStore } from '@/lib/store/auth-store';
-import type { AuthUser } from '@/lib/store/auth-store';
+import { useAuthStore, type AuthUser } from '@/lib/store/auth-store';
+import { handleAuthCallback } from '@/lib/api/auth-api';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
@@ -17,6 +17,7 @@ export default function AuthCallbackPage() {
     if (token && userStr) {
       try {
         const user: AuthUser = JSON.parse(decodeURIComponent(userStr));
+        handleAuthCallback(token, user);
         login(user);
         router.push('/dashboard');
       } catch (e) {

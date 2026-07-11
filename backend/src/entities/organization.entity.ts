@@ -14,7 +14,7 @@ export class Organization {
   @Column({ nullable: true })
   description?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'github_org' })
   githubOrg?: string;
 
   @Column({ nullable: true })
@@ -23,12 +23,12 @@ export class Organization {
   @Column({ default: 'active' })
   status: 'active' | 'pending' | 'suspended';
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'owner_id' })
   ownerId?: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }

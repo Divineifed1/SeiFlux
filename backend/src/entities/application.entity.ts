@@ -9,41 +9,21 @@ export class Application {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid' })
-  issueId: string;
+  @Column({ type: 'uuid', name: 'opportunity_id' })
+  opportunityId: string;
 
-  @ManyToOne(() => Issue)
-  @JoinColumn({ name: 'issueId' })
-  issue?: Issue;
+  @Column({ name: 'applicant_name' })
+  applicantName: string;
 
-  @Column({ type: 'uuid', nullable: true })
-  contributorId: string;
+  @Column({ name: 'applicant_handle' })
+  applicantHandle: string;
 
-  @Column({ type: 'uuid', nullable: true })
-  waveId?: string;
-
-  @ManyToOne(() => Wave)
-  @JoinColumn({ name: 'waveId' })
-  wave?: Wave;
-
-  @Column({ type: 'text', nullable: true })
-  coverLetter?: string;
-
-  @Column({ type: 'text', nullable: true })
-  githubProfile?: string;
+  @Column({ type: 'text', nullable: true, name: 'message' })
+  message?: string;
 
   @Column({ type: 'enum', enum: ['pending', 'review', 'approved', 'rejected', 'merged', 'closed'], default: 'pending' })
   status: ApplicationStatus;
 
-  @Column({ type: 'timestamptz', nullable: true })
+  @Column({ type: 'timestamptz', nullable: true, name: 'applied_at' })
   appliedAt?: Date;
-
-  @Column({ type: 'timestamptz', nullable: true })
-  updatedAt?: Date;
-
-  @Column({ type: 'timestamptz', nullable: true })
-  closedAt?: Date;
-
-  @Column({ type: 'timestamptz', nullable: true })
-  rolledOverAt?: Date;
 }

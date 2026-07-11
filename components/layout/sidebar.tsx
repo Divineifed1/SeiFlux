@@ -118,7 +118,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 <Zap className="h-4 w-4 text-primary-foreground" />
               </div>
               <span className="font-semibold text-sm text-foreground whitespace-nowrap">
-                SEI Builders
+                seiflux
               </span>
             </Link>
           )}
