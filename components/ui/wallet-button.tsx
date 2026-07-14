@@ -11,19 +11,22 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Copy, LogOut, Wallet, ExternalLink, RefreshCw } from 'lucide-react';
-import { useWallet, type WalletType } from '@/lib/wallet/use-wallet';
+import { useWallet, type WalletType, isEvmWallet } from '@/lib/wallet/use-wallet';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
-import { SEI_MAINNET } from '@/lib/chain-config';
+import { SEI_MAINNET, SEI_EVM } from '@/lib/chain-config';
 
 const WALLET_ICONS: Record<WalletType, string> = {
   keplr: '🟢',
   compass: '🧭',
   leap: '🦘',
+  metamask: '🦊',
+  rabby: '🐰',
 };
 
-const SEI_EXPLORER = 'https://www.mintscan.io/sei/tx';
+const COSMOS_EXPLORER = 'https://www.mintscan.io/sei';
+const EVM_EXPLORER = SEI_EVM.explorer;
 
 export function WalletButton({ className }: { className?: string }) {
   const router = useRouter();
@@ -34,10 +37,13 @@ export function WalletButton({ className }: { className?: string }) {
     address,
     currentWallet,
     balance,
+    balanceUnit,
     error,
     connect,
     disconnect,
   } = useWallet();
+
+  const setPayoutAddress = useAuthStore((s) => s.setPayoutAddress);
 
   const [refreshCounter, setRefreshCounter] = React.useState(0);
 
@@ -53,6 +59,7 @@ export function WalletButton({ className }: { className?: string }) {
         walletType: currentWallet.type,
       };
       login(user);
+      setPayoutAddress(address);
       toast({
         variant: 'success',
         title: 'Wallet connected!',
@@ -131,7 +138,7 @@ export function WalletButton({ className }: { className?: string }) {
               </button>
             </div>
             <p className="text-sm font-semibold text-foreground">
-              {balance !== null ? `${Number(balance).toLocaleString()} usei` : 'Loading...'}
+              {balance !== null ? `${Number(balance).toLocaleString()} ${balanceUnit}` : 'Loading...'}
             </p>
           </div>
 
@@ -139,13 +146,13 @@ export function WalletButton({ className }: { className?: string }) {
 
           <DropdownMenuItem asChild>
             <a
-              href={`${SEI_EXPLORER}/account/${address}`}
+              href={`${isEvmWallet(currentWallet.type) ? EVM_EXPLORER : COSMOS_EXPLORER}/account/${address}`}
               target="_blank"
               rel="noopener noreferrer"
               className="gap-2"
             >
               <ExternalLink className="h-4 w-4" />
-              View on Mintscan
+              View on {isEvmWallet(currentWallet.type) ? 'Seitrace' : 'Mintscan'}
             </a>
           </DropdownMenuItem>
 

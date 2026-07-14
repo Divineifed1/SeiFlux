@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+'use client';
 import * as React from 'react';
 import Link from 'next/link';
 import {
@@ -12,6 +12,7 @@ import {
   Zap,
   Code2,
   ChevronRight,
+  Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,8 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StatusBadge } from '@/components/design-system/status-badge';
 import { GithubIcon } from '@/components/ui/github-icon';
 import { IssuesList } from './issues-list';
-
-export const metadata: Metadata = { title: 'Project' };
+import { useProjectSubmissions } from '@/lib/store/project-submissions-store';
 
 // Mock data — replace with real fetch by slug
 const PROJECT = {
@@ -87,6 +87,31 @@ const ISSUES = [
 
 export default function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
+  const submissions = useProjectSubmissions((s) => s.submissions);
+  const submission = submissions.find((p) => p.slug === slug) || null;
+
+  const project = submission
+    ? {
+        name: submission.name,
+        slug: submission.slug,
+        org: submission.org,
+        description: submission.description,
+        longDescription: submission.description,
+        tags: submission.tags,
+        tech: submission.tech,
+        stars: 0,
+        forks: 0,
+        contributors: 0,
+        openOpportunities: 0,
+        status: submission.status,
+        website: undefined,
+        github: submission.repoUrl,
+      }
+    : PROJECT;
+
+  const isApproved = !submission || submission.status === 'approved';
+  const issues = submission ? [] : ISSUES;
+
   return (
     <div className="pt-20 pb-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -100,8 +125,24 @@ export default function ProjectPage({ params }: { params: Promise<{ slug: string
             Projects
           </Link>
           <ChevronRight className="h-3 w-3" />
-          <span className="text-foreground">{PROJECT.name}</span>
+          <span className="text-foreground">{project.name}</span>
         </div>
+
+        {submission && !isApproved && (
+          <div className="mb-6 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-4 flex items-start gap-3">
+            <Clock className="h-4 w-4 text-yellow-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                This project is {submission.status}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {submission.status === 'pending'
+                  ? 'It is awaiting admin review and will appear publicly once approved.'
+                  : 'It was not approved and is not publicly listed.'}
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
           {/* Main content */}
@@ -110,24 +151,24 @@ export default function ProjectPage({ params }: { params: Promise<{ slug: string
             <div className="mb-6">
               <div className="flex items-start gap-4 mb-4">
                 <div className="h-14 w-14 rounded-xl bg-muted flex items-center justify-center text-xl font-black text-muted-foreground shrink-0">
-                  {PROJECT.name.charAt(0)}
+                  {project.name.charAt(0)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-3 mb-1">
-                    <h1 className="text-2xl font-bold text-foreground">{PROJECT.name}</h1>
-                    <StatusBadge status={PROJECT.status} />
+                    <h1 className="text-2xl font-bold text-foreground">{project.name}</h1>
+                    <StatusBadge status={project.status} />
                   </div>
-                  <p className="text-sm text-muted-foreground">{PROJECT.org}</p>
+                  <p className="text-sm text-muted-foreground">{project.org}</p>
                 </div>
               </div>
 
               <p className="text-sm text-foreground/80 leading-relaxed mb-4">
-                {PROJECT.description}
+                {project.description}
               </p>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2 mb-4">
-                {PROJECT.tags.map((tag) => (
+                {project.tags.map((tag) => (
                   <Badge
                     key={tag}
                     variant="default"
@@ -136,7 +177,7 @@ export default function ProjectPage({ params }: { params: Promise<{ slug: string
                     {tag}
                   </Badge>
                 ))}
-                {PROJECT.tech.map((t) => (
+                {project.tech.map((t) => (
                   <Badge key={t} variant="muted" className="text-xs">
                     <Code2 className="h-2.5 w-2.5 mr-1" />
                     {t}
@@ -148,15 +189,15 @@ export default function ProjectPage({ params }: { params: Promise<{ slug: string
               <div className="flex flex-wrap gap-5 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1.5">
                   <Star className="h-4 w-4" />
-                  <strong className="text-foreground">{PROJECT.stars.toLocaleString()}</strong> stars
+                  <strong className="text-foreground">{project.stars.toLocaleString()}</strong> stars
                 </span>
                 <span className="flex items-center gap-1.5">
                   <GitFork className="h-4 w-4" />
-                  <strong className="text-foreground">{PROJECT.forks}</strong> forks
+                  <strong className="text-foreground">{project.forks}</strong> forks
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Users className="h-4 w-4" />
-                  <strong className="text-foreground">{PROJECT.contributors}</strong> contributors
+                  <strong className="text-foreground">{project.contributors}</strong> contributors
                 </span>
               </div>
             </div>
@@ -169,7 +210,7 @@ export default function ProjectPage({ params }: { params: Promise<{ slug: string
                   <TabsTrigger value="issues">
                     Issues{' '}
                     <Badge variant="muted" className="ml-1.5 text-[10px] px-1">
-                      {ISSUES.length}
+                      {issues.length}
                     </Badge>
                   </TabsTrigger>
                   <TabsTrigger value="about">About</TabsTrigger>
@@ -177,14 +218,14 @@ export default function ProjectPage({ params }: { params: Promise<{ slug: string
 
                 <TabsContent value="issues">
                   <IssuesList
-                    issues={ISSUES}
-                    projectName={PROJECT.name}
+                    issues={issues}
+                    projectName={project.name}
                   />
               </TabsContent>
 
               <TabsContent value="about">
                 <div className="prose prose-sm prose-invert max-w-none">
-                  {PROJECT.longDescription.split('\n\n').map((para, i) => (
+                  {project.longDescription.split('\n\n').map((para, i) => (
                     <p key={i} className="text-sm text-muted-foreground leading-relaxed mb-4">
                       {para.trim()}
                     </p>
@@ -199,10 +240,10 @@ export default function ProjectPage({ params }: { params: Promise<{ slug: string
             {/* CTA */}
             <div className="rounded-xl border border-primary/20 bg-primary/5 p-5">
               <p className="text-sm font-semibold text-foreground mb-1">
-                 {PROJECT.openOpportunities} open issues
+                 {project.openOpportunities} open issues
               </p>
               <p className="text-xs text-muted-foreground mb-4">
-                Join {PROJECT.contributors} contributors already building this project.
+                Join {project.contributors} contributors already building this project.
               </p>
               <Button className="w-full" asChild>
                 <Link href="/sign-up">
@@ -218,9 +259,9 @@ export default function ProjectPage({ params }: { params: Promise<{ slug: string
                 Links
               </p>
               <div className="space-y-2">
-                {PROJECT.website && (
+                {project.website && (
                   <a
-                    href={PROJECT.website}
+                    href={project.website}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -230,9 +271,9 @@ export default function ProjectPage({ params }: { params: Promise<{ slug: string
                     <ExternalLink className="h-3 w-3 ml-auto" />
                   </a>
                 )}
-                {PROJECT.github && (
+                {project.github && (
                   <a
-                    href={PROJECT.github}
+                    href={project.github}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -258,7 +299,7 @@ export default function ProjectPage({ params }: { params: Promise<{ slug: string
                 Tech Stack
               </p>
               <div className="flex flex-wrap gap-1.5">
-                {PROJECT.tech.map((t) => (
+                {project.tech.map((t) => (
                   <Badge key={t} variant="muted" className="text-xs">
                     {t}
                   </Badge>

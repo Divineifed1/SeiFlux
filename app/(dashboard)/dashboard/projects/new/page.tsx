@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/design-system/page-header';
 import { cn, slugify } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
+import { useProjectSubmissions } from '@/lib/store/project-submissions-store';
+import { useAuthStore } from '@/lib/store/auth-store';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 const CATEGORIES = ['DeFi', 'NFT', 'Gaming', 'Infrastructure', 'Tooling', 'Social', 'DAO', 'Analytics', 'Bridge'];
@@ -84,6 +86,8 @@ export default function NewProjectPage() {
   const [state, dispatch] = React.useReducer(reducer, INITIAL_STATE);
   const [publishing, setPublishing] = React.useState(false);
   const [repoSearch, setRepoSearch] = React.useState('');
+  const addSubmission = useProjectSubmissions((s) => s.addSubmission);
+  const user = useAuthStore((s) => s.user);
 
   const filteredRepos = MOCK_REPOS.filter((r) =>
     r.fullName.toLowerCase().includes(repoSearch.toLowerCase())
@@ -99,11 +103,21 @@ export default function NewProjectPage() {
   const handlePublish = async () => {
     setPublishing(true);
     await new Promise((r) => setTimeout(r, 1000));
+    addSubmission({
+      name: state.name,
+      slug: state.slug || slugify(state.name),
+      org: user?.name ?? '—',
+      submittedBy: user?.githubUsername ?? 'you',
+      description: state.description,
+      tags: [...state.categories, ...state.techStack],
+      tech: state.techStack,
+      repoUrl: state.manualRepoUrl || undefined,
+    });
     setPublishing(false);
     toast({
       variant: 'success',
-      title: 'Project published!',
-      description: `"${state.name}" is now live on SeiFlux.`,
+      title: 'Project submitted for review!',
+      description: `"${state.name}" is awaiting admin approval before it goes live.`,
     });
     setStep(4);
   };
@@ -429,14 +443,14 @@ export default function NewProjectPage() {
               </div>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-foreground">Project Published!</h3>
+              <h3 className="text-lg font-semibold text-foreground">Project Submitted!</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                <span className="font-medium text-foreground">{state.name}</span> is now live on SeiFlux.
+                <span className="font-medium text-foreground">{state.name}</span> is awaiting admin review before it goes live.
               </p>
             </div>
             <div className="flex items-center justify-center gap-3 pt-2">
               <Button variant="outline" size="sm" asChild>
-                <Link href={`/projects/${state.slug}`} target="_blank">View Project</Link>
+                <Link href="/dashboard/projects">View my projects</Link>
               </Button>
               <Button size="sm" asChild>
                 <Link href="/dashboard/issues">

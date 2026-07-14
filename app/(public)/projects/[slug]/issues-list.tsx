@@ -33,6 +33,17 @@ interface IssuesListProps {
 }
 
 export function IssuesList({ issues, projectName }: IssuesListProps) {
+  if (issues.length === 0) {
+    return (
+      <div className="rounded-lg border border-border bg-card p-10 text-center">
+        <p className="text-sm font-medium text-foreground">No issues posted yet</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Contributors will be able to apply to opportunities as they&apos;re added.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       {issues.map((issue) => {

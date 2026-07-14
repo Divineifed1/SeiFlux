@@ -13,6 +13,7 @@ export interface AuthUser {
   githubUsername?: string;
   walletAddress?: string;
   walletType?: string;
+  payoutAddress?: string;
 }
 
 interface AuthState {
@@ -24,6 +25,7 @@ interface AuthState {
   setLoading: (loading: boolean) => void;
   initializeFromStorage: () => void;
   setWallet: (walletAddress: string, walletType: string) => void;
+  setPayoutAddress: (payoutAddress: string) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -43,6 +45,12 @@ export const useAuthStore = create<AuthState>()(
         const user = get().user;
         if (!user) return;
         set({ user: { ...user, walletAddress, walletType } });
+      },
+
+      setPayoutAddress: (payoutAddress: string) => {
+        const user = get().user;
+        if (!user) return;
+        set({ user: { ...user, payoutAddress } });
       },
 
       initializeFromStorage: () => {

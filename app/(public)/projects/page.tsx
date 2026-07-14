@@ -1,11 +1,11 @@
-import type { Metadata } from 'next';
+'use client';
+import * as React from 'react';
 import { Search, SlidersHorizontal, Star, GitFork, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
-export const metadata: Metadata = { title: 'Projects' };
+import { useProjectSubmissions } from '@/lib/store/project-submissions-store';
 
 const MOCK_PROJECTS = [
   {
@@ -49,6 +49,27 @@ const MOCK_PROJECTS = [
 const CATEGORY_TAGS = ['All', 'DeFi', 'NFT', 'Gaming', 'Infrastructure', 'Indexer', 'Oracle', 'Lending'];
 
 export default function ProjectsPage() {
+  const submissions = useProjectSubmissions((s) => s.submissions);
+
+  const submittedProjects = submissions
+    .filter((p) => p.status === 'approved')
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      org: p.org,
+      slug: p.slug,
+      description: p.description,
+      tags: p.tags,
+      tech: p.tech,
+      stars: 0,
+      forks: 0,
+      contributors: 0,
+      open: 0,
+      status: 'approved' as const,
+    }));
+
+  const ALL_PROJECTS = [...submittedProjects, ...MOCK_PROJECTS];
+
   return (
     <div className="pt-24 pb-16">
       {/* Header */}
@@ -57,9 +78,9 @@ export default function ProjectsPage() {
           <h1 className="text-3xl font-bold text-foreground tracking-tight mb-2">
             Sei Ecosystem Projects
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Discover {MOCK_PROJECTS.length}+ open-source projects building on the Sei blockchain.
-          </p>
+            <p className="text-sm text-muted-foreground">
+              Discover {ALL_PROJECTS.length}+ open-source projects building on the Sei blockchain.
+            </p>
         </div>
 
         {/* Filters */}
@@ -107,7 +128,7 @@ export default function ProjectsPage() {
 
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {MOCK_PROJECTS.map((project) => (
+          {ALL_PROJECTS.map((project) => (
             <a
               key={project.id}
               href={`/projects/${project.slug}`}

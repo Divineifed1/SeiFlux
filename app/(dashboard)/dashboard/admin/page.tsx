@@ -9,11 +9,19 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { MetricCard } from '@/components/design-system/metric-card';
 import { PageHeader } from '@/components/design-system/page-header';
 import { SectionHeader } from '@/components/design-system/section-header';
 import { WaveManagerDialog } from '@/components/dialogs/wave-manager-dialog';
 import { useWaves } from '@/lib/hooks/use-waves';
+import { useProjectSubmissions, timeAgo } from '@/lib/store/project-submissions-store';
 import { toast } from '@/hooks/use-toast';
 
 // ─── Mock data ─────────────────────────────────────────────────────────────────
@@ -186,13 +194,40 @@ export default function AdminPage() {
   const [users, setUsers] = React.useState(INITIAL_USERS);
   const [orgs, setOrgs] = React.useState(INITIAL_ORGS);
 
+  const submissions = useProjectSubmissions((s) => s.submissions);
+  const setStatus = useProjectSubmissions((s) => s.setStatus);
+
+  const submittedPending = submissions
+    .filter((p) => p.status === 'pending')
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      org: p.org,
+      submittedBy: p.submittedBy,
+      submittedAt: timeAgo(p.submittedAt),
+      tags: p.tags,
+      description: p.description,
+    }));
+
+  const pendingProjects = [...projects, ...submittedPending];
+
+  const [previewProject, setPreviewProject] = React.useState<(typeof pendingProjects)[number] | null>(null);
+
   const approveProject = (id: string, name: string) => {
-    setProjects((prev) => prev.filter((p) => p.id !== id));
+    if (id.startsWith('sub_')) {
+      setStatus(id, 'approved');
+    } else {
+      setProjects((prev) => prev.filter((p) => p.id !== id));
+    }
     toast({ variant: 'success', title: 'Project approved', description: `${name} is now publicly listed.` });
   };
 
   const rejectProject = (id: string, name: string) => {
-    setProjects((prev) => prev.filter((p) => p.id !== id));
+    if (id.startsWith('sub_')) {
+      setStatus(id, 'rejected');
+    } else {
+      setProjects((prev) => prev.filter((p) => p.id !== id));
+    }
     toast({ title: 'Project rejected', description: `${name} was not approved.` });
   };
 
@@ -245,7 +280,7 @@ export default function AdminPage() {
             </Badge>
             <Badge variant="warning" className="gap-1">
               <Clock className="h-3 w-3" />
-              {projects.length} pending
+              {pendingProjects.length} pending
             </Badge>
           </div>
         }
@@ -261,9 +296,9 @@ export default function AdminPage() {
       <Tabs defaultValue="projects">
         <TabsList>
           <TabsTrigger value="projects">
-            Pending
-            {projects.length > 0 && (
-              <Badge variant="warning" className="ml-1.5 text-[10px] px-1">{projects.length}</Badge>
+             Pending
+            {pendingProjects.length > 0 && (
+              <Badge variant="warning" className="ml-1.5 text-[10px] px-1">{pendingProjects.length}</Badge>
             )}
           </TabsTrigger>
           <TabsTrigger value="waves">
@@ -282,14 +317,14 @@ export default function AdminPage() {
 
         {/* Pending Projects */}
         <TabsContent value="projects" className="mt-4 space-y-3">
-          {projects.length === 0 ? (
+          {pendingProjects.length === 0 ? (
             <div className="rounded-lg border border-border bg-card p-10 text-center">
               <CheckCircle2 className="h-8 w-8 text-green-400 mx-auto mb-3" />
               <p className="text-sm font-medium text-foreground">All caught up</p>
               <p className="text-xs text-muted-foreground mt-1">No pending project submissions.</p>
             </div>
           ) : (
-            projects.map((project) => (
+            pendingProjects.map((project) => (
               <div key={project.id} className="rounded-lg border border-border bg-card p-5 hover:border-border/80 transition-colors">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -313,7 +348,7 @@ export default function AdminPage() {
                       <CheckCircle2 className="h-3.5 w-3.5" />
                       Approve
                     </Button>
-                    <Button size="sm" variant="outline" className="gap-1.5 text-xs h-8">
+                    <Button size="sm" variant="outline" className="gap-1.5 text-xs h-8" onClick={() => setPreviewProject(project)}>
                       <Eye className="h-3.5 w-3.5" />
                       Preview
                     </Button>
@@ -565,6 +600,47 @@ export default function AdminPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={!!previewProject} onOpenChange={(open) => !open && setPreviewProject(null)}>
+        <DialogContent className="sm:max-w-[520px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-4 w-4 text-primary" />
+              {previewProject?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Submitted by @{previewProject?.submittedBy} · {previewProject?.submittedAt}
+            </DialogDescription>
+          </DialogHeader>
+          {previewProject && (
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Organization</p>
+                <p className="text-sm text-foreground">{previewProject.org}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Description</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{previewProject.description}</p>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {previewProject.tags.map((tag) => (
+                  <Badge key={tag} variant="muted" className="text-[10px]">{tag}</Badge>
+                ))}
+              </div>
+              <div className="flex items-center gap-2 pt-2">
+                <Button size="sm" className="gap-1.5 text-xs" onClick={() => { if (previewProject) approveProject(previewProject.id, previewProject.name); setPreviewProject(null); }}>
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Approve
+                </Button>
+                <Button size="sm" variant="ghost" className="gap-1.5 text-xs text-destructive hover:text-destructive" onClick={() => { if (previewProject) rejectProject(previewProject.id, previewProject.name); setPreviewProject(null); }}>
+                  <XCircle className="h-3.5 w-3.5" />
+                  Reject
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

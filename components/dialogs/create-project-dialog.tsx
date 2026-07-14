@@ -26,8 +26,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, slugify } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
+import { useProjectSubmissions } from '@/lib/store/project-submissions-store';
+import { useAuthStore } from '@/lib/store/auth-store';
 
 const MOCK_ORGS = [
   { id: '1', name: 'SeiSwap Labs' },
@@ -67,6 +69,8 @@ export function CreateProjectDialog({ children, onSuccess }: CreateProjectDialog
   const [open, setOpen] = React.useState(false);
   const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
   const [selectedTech, setSelectedTech] = React.useState<string[]>([]);
+  const addSubmission = useProjectSubmissions((s) => s.addSubmission);
+  const user = useAuthStore((s) => s.user);
 
   const {
     register,
@@ -98,6 +102,17 @@ export function CreateProjectDialog({ children, onSuccess }: CreateProjectDialog
 
   const onSubmit = async (data: FormValues) => {
     await new Promise((r) => setTimeout(r, 600));
+    const org = MOCK_ORGS.find((o) => o.id === data.organizationId);
+    addSubmission({
+      name: data.title,
+      slug: slugify(data.title),
+      org: org?.name ?? '—',
+      submittedBy: user?.githubUsername ?? 'you',
+      description: data.description,
+      tags: [...data.tags, ...data.techStack],
+      tech: data.techStack,
+      repoUrl: data.repoUrl || undefined,
+    });
     toast({
       variant: 'success',
       title: 'Project submitted for review',

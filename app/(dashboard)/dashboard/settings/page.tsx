@@ -1,5 +1,7 @@
+'use client';
+import * as React from 'react';
 import type { Metadata } from 'next';
-import { User, Bell, Shield, FolderGit2, Palette, Key } from 'lucide-react';
+import { User, Bell, Shield, FolderGit2, Palette, Key, Coins, Save } from 'lucide-react';
 import { GithubIcon } from '@/components/ui/github-icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,8 +13,10 @@ import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/design-system/page-header';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThemeToggle } from '@/components/theme-toggle';
-
-export const metadata: Metadata = { title: 'Settings' };
+import { SeiAddressInput } from '@/components/ui/sei-address-input';
+import { useAuthStore } from '@/lib/store/auth-store';
+import { useToast } from '@/hooks/use-toast';
+import { validateSeiAddress, formatSeiAddress, seiAddressTypeLabel } from '@/lib/validation/sei-address';
 
 function SettingsSection({
   icon: Icon,
@@ -52,6 +56,26 @@ const NOTIFICATION_SETTINGS = [
 ];
 
 export default function SettingsPage() {
+  const user = useAuthStore((s) => s.user);
+  const setPayoutAddress = useAuthStore((s) => s.setPayoutAddress);
+  const { toast } = useToast();
+
+  const [draft, setDraft] = React.useState(user?.payoutAddress ?? '');
+  const [valid, setValid] = React.useState(false);
+
+  const saved = user?.payoutAddress;
+  const savedValidation = validateSeiAddress(saved ?? '');
+
+  const handleSave = () => {
+    const v = validateSeiAddress(draft);
+    if (!v.valid) {
+      toast({ title: 'Invalid address', description: 'Enter a valid Sei native or EVM address.', variant: 'destructive' });
+      return;
+    }
+    setPayoutAddress(v.normalized);
+    toast({ variant: 'success', title: 'Payout address saved', description: `Rewards will be sent to ${formatSeiAddress(v.normalized)}.` });
+  };
+
   return (
     <div className="space-y-6 max-w-2xl">
       <PageHeader title="Settings" description="Manage your account and platform preferences." />
@@ -108,6 +132,44 @@ export default function SettingsPage() {
             <Input placeholder="https://yoursite.com" type="url" />
           </div>
           <Button size="sm">Save changes</Button>
+        </div>
+      </SettingsSection>
+
+      {/* Payout Address */}
+      <SettingsSection
+        icon={Coins}
+        title="Payout Address"
+        description="Where your SEI rewards are sent. Accepts Sei native (sei1…) or Sei EVM (0x…) addresses."
+      >
+        <div className="space-y-4">
+          {saved && savedValidation.valid ? (
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/40 px-4 py-3">
+              <div className="min-w-0">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Current payout address</p>
+                <p className="text-sm font-mono text-foreground truncate">{saved}</p>
+              </div>
+              <Badge variant="success" className="text-[10px] shrink-0">
+                {seiAddressTypeLabel(savedValidation.type)}
+              </Badge>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              No payout address set yet — add one below to enable reward claims.
+            </p>
+          )}
+
+          <div className="space-y-1.5">
+            <Label>New payout address</Label>
+            <SeiAddressInput value={draft} onChange={setDraft} onValidChange={setValid} />
+          </div>
+
+          <Button size="sm" className="gap-1.5" onClick={handleSave} disabled={!valid}>
+            <Save className="h-3.5 w-3.5" />
+            Save payout address
+          </Button>
+          <p className="text-[11px] text-muted-foreground">
+            On-chain payouts are irreversible — double-check the address before saving.
+          </p>
         </div>
       </SettingsSection>
 

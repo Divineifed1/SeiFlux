@@ -18,6 +18,10 @@ import {
   Compass,
   Activity,
   Bell,
+  Gauge,
+  Trophy,
+  Medal,
+  Crown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -25,6 +29,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuthStore } from '@/lib/store/auth-store';
+import { useContributorApplications } from '@/lib/hooks/use-contributor-applications';
 
 interface NavItem {
   label: string;
@@ -38,46 +43,53 @@ interface NavGroup {
   items: NavItem[];
 }
 
-const NAV_GROUPS: NavGroup[] = [
-  {
-    title: 'Overview',
-    items: [
-      { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { label: 'Discover', href: '/dashboard/discover', icon: Compass },
-      { label: 'Activity', href: '/dashboard/activity', icon: Activity },
-    ],
-  },
-  {
-    title: 'Manage',
-    items: [
-      { label: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
-      { label: 'Projects', href: '/dashboard/projects', icon: FolderKanban },
-      { label: 'Issues', href: '/dashboard/issues', icon: Zap },
-      { label: 'Contributors', href: '/dashboard/contributors', icon: Users },
-      { label: 'Applications', href: '/dashboard/applications', icon: FileText, badge: 2 },
-      { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart2 },
-    ],
-  },
-  {
-    title: 'Integrations',
-    items: [
-      { label: 'GitHub', href: '/dashboard/github', icon: FolderGit2 },
-      { label: 'Repositories', href: '/dashboard/github/repositories', icon: GitBranch },
-    ],
-  },
-  {
-    title: 'Account',
-    items: [
-      { label: 'Notifications', href: '/dashboard/notifications', icon: Bell, badge: 4 },
-      { label: 'Settings', href: '/dashboard/settings', icon: Settings },
-    ],
-  },
-];
+const OVERVIEW_GROUP: NavGroup = {
+  title: 'Overview',
+  items: [
+    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { label: 'Discover', href: '/dashboard/discover', icon: Compass },
+    { label: 'Activity', href: '/dashboard/activity', icon: Activity },
+  ],
+};
 
-const ADMIN_NAV_GROUP: NavGroup = {
+const INTEGRATIONS_GROUP: NavGroup = {
+  title: 'Integrations',
+  items: [
+    { label: 'GitHub', href: '/dashboard/github', icon: FolderGit2 },
+    { label: 'Repositories', href: '/dashboard/github/repositories', icon: GitBranch },
+  ],
+};
+
+const ACCOUNT_GROUP: NavGroup = {
+  title: 'Account',
+  items: [
+    { label: 'Notifications', href: '/dashboard/notifications', icon: Bell },
+    { label: 'Settings', href: '/dashboard/settings', icon: Settings },
+  ],
+};
+
+const REWARDS_GROUP: NavGroup = {
+  title: 'Rewards',
+  items: [{ label: 'My Rewards', href: '/dashboard/rewards', icon: Trophy }],
+};
+
+const MANAGE_GROUP: NavGroup = {
+  title: 'Manage',
+  items: [
+    { label: 'Organizations', href: '/dashboard/organizations', icon: Building2 },
+    { label: 'Projects', href: '/dashboard/projects', icon: FolderKanban },
+    { label: 'Issues', href: '/dashboard/issues', icon: Zap },
+    { label: 'Contributors', href: '/dashboard/contributors', icon: Users },
+    { label: 'Applications', href: '/dashboard/applications', icon: FileText },
+    { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart2 },
+  ],
+};
+
+const ADMIN_GROUP: NavGroup = {
   title: 'Admin',
   items: [
     { label: 'Admin Panel', href: '/dashboard/admin', icon: ShieldCheck },
+    { label: 'All-Waves Leaderboard', href: '/dashboard/admin/leaderboard', icon: Crown },
   ],
 };
 
@@ -89,9 +101,47 @@ interface SidebarProps {
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
-  const navGroups = user?.role === 'admin'
-    ? [...NAV_GROUPS, ADMIN_NAV_GROUP]
-    : NAV_GROUPS;
+  const { usedSlots } = useContributorApplications();
+
+  const navGroups = React.useMemo<NavGroup[]>(() => {
+    const contributorGroup: NavGroup = {
+      title: 'Contributor',
+      items: [
+        { label: 'Application Limits', href: '/dashboard/contributor/application-limits', icon: Gauge, badge: usedSlots },
+        { label: 'My Issues', href: '/dashboard/contributor/issues', icon: Zap },
+        { label: 'Leaderboard', href: '/dashboard/leaderboard', icon: Medal },
+      ],
+    };
+    const maintainerGroup: NavGroup = {
+      title: 'Maintainer',
+      items: [
+        { label: 'Issues', href: '/dashboard/maintainer/issues', icon: Zap },
+        { label: 'Analytics', href: '/dashboard/maintainer/analytics', icon: BarChart2 },
+        { label: 'Leaderboard', href: '/dashboard/leaderboard', icon: Medal },
+        { label: 'Projects', href: '/dashboard/projects', icon: FolderKanban },
+        { label: 'Contributors', href: '/dashboard/contributors', icon: Users },
+      ],
+    };
+
+    switch (user?.role) {
+      case 'contributor':
+      case 'maintainer':
+        return [OVERVIEW_GROUP, contributorGroup, maintainerGroup, REWARDS_GROUP, INTEGRATIONS_GROUP, ACCOUNT_GROUP];
+      case 'admin':
+        return [
+          OVERVIEW_GROUP,
+          contributorGroup,
+          maintainerGroup,
+          MANAGE_GROUP,
+          REWARDS_GROUP,
+          INTEGRATIONS_GROUP,
+          ADMIN_GROUP,
+          ACCOUNT_GROUP,
+        ];
+      default:
+        return [OVERVIEW_GROUP, INTEGRATIONS_GROUP, ACCOUNT_GROUP];
+    }
+  }, [user?.role, usedSlots]);
 
   return (
     <TooltipProvider delayDuration={0}>
