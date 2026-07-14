@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Trophy, Coins, Clock, CheckCircle2, Loader2, ArrowDownToLine, ShieldAlert, Wallet } from 'lucide-react';
+import { Trophy, Coins, Clock, CheckCircle2, Loader2, ArrowDownToLine, ShieldAlert, Wallet, Save } from 'lucide-react';
 import { PageHeader } from '@/components/design-system/page-header';
 import { SectionHeader } from '@/components/design-system/section-header';
 import { MetricCard } from '@/components/design-system/metric-card';
@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 import { useRewards, type RewardStatus } from '@/lib/hooks/use-rewards';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { validateSeiAddress, formatSeiAddress, seiAddressTypeLabel } from '@/lib/validation/sei-address';
+import { SeiAddressInput } from '@/components/ui/sei-address-input';
 import { useToast } from '@/hooks/use-toast';
 
 const REWARD_STATUS_CONFIG: Record<
@@ -38,73 +39,105 @@ function formatDate(d: Date): string {
 export default function RewardsPage() {
   const { totalEarned, pending, availableToClaim, rank, entries } = useRewards();
   const user = useAuthStore((s) => s.user);
+  const setPayoutAddress = useAuthStore((s) => s.setPayoutAddress);
   const { toast } = useToast();
 
   const payout = user?.payoutAddress ?? '';
   const payoutValidation = validateSeiAddress(payout);
   const payoutValid = payoutValidation.valid;
 
+  const [draft, setDraft] = React.useState(payout);
+  const [valid, setValid] = React.useState(payoutValid);
+  React.useEffect(() => {
+    setDraft(payout);
+    setValid(payoutValid);
+  }, [payout, payoutValid]);
+
   const [claimed, setClaimed] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
 
   const claimable = availableToClaim > 0 && !claimed;
-  const canClaim = payoutValid && claimable;
+  const canRequest = payoutValid && claimable;
 
-  const handleConfirmClaim = () => {
+  const handleSaveAddress = () => {
+    const v = validateSeiAddress(draft);
+    if (!v.valid) {
+      toast({ title: 'Invalid address', description: 'Enter a valid Sei native or EVM address.', variant: 'destructive' });
+      return;
+    }
+    setPayoutAddress(v.normalized);
+    toast({ variant: 'success', title: 'Wallet address saved', description: `Rewards will be sent to ${formatSeiAddress(v.normalized)}.` });
+  };
+
+  const handleConfirmRequest = () => {
     setClaimed(true);
     setConfirmOpen(false);
-    toast({ variant: 'success', title: 'Rewards claimed', description: `${availableToClaim} SEI will be sent to your payout address.` });
+    toast({ variant: 'success', title: 'Reward request submitted', description: `${availableToClaim} SEI will be sent to your wallet address.` });
   };
 
   return (
     <div className="space-y-6 max-w-5xl">
       <PageHeader
         title="My Rewards"
-        description="Track SEI earned from bounties and contributions."
+        description="Enter your Sei wallet address to request payout of earned rewards."
         actions={
-          <Button size="sm" className="gap-1.5" disabled={!canClaim} onClick={() => setConfirmOpen(true)}>
+          <Button size="sm" className="gap-1.5" disabled={!canRequest} onClick={() => setConfirmOpen(true)}>
             <ArrowDownToLine className="h-4 w-4" />
-            {claimed ? 'Claimed' : claimable ? `Claim ${availableToClaim} SEI` : 'Rewards'}
+            {claimed ? 'Requested' : claimable ? `Request ${availableToClaim} SEI` : 'Rewards'}
           </Button>
         }
       />
 
-      {/* Payout address */}
+      {/* Wallet address */}
       <Card>
-        <CardContent className="p-4 flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-            <Wallet className="h-4 w-4" />
-          </div>
+        <CardContent className="p-4">
           {payoutValid ? (
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Payout address</p>
-              <p className="text-sm font-mono text-foreground truncate">
-                {formatSeiAddress(payout, 10, 8)}
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+                <Wallet className="h-4 w-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Wallet address</p>
+                <p className="text-sm font-mono text-foreground truncate">
+                  {formatSeiAddress(payout, 10, 8)}
+                </p>
+              </div>
+              <Badge variant="success" className="text-[10px] shrink-0">
+                {seiAddressTypeLabel(payoutValidation.type)}
+              </Badge>
+              <Button variant="outline" size="sm" asChild className="shrink-0">
+                <Link href="/dashboard/settings">Change</Link>
+              </Button>
             </div>
           ) : (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground">No payout address set</p>
-              <p className="text-xs text-muted-foreground">
-                Add a Sei address to enable reward claims.
-              </p>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+                  <Wallet className="h-4 w-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Add your Sei wallet address</p>
+                  <p className="text-xs text-muted-foreground">
+                    Rewards are sent to this address — accepts Sei native (sei1…) or Sei EVM (0x…).
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <SeiAddressInput value={draft} onChange={setDraft} onValidChange={setValid} className="flex-1" />
+                <Button size="sm" className="gap-1.5 shrink-0" onClick={handleSaveAddress} disabled={!valid}>
+                  <Save className="h-3.5 w-3.5" />
+                  Save
+                </Button>
+              </div>
             </div>
           )}
-          {payoutValid && (
-            <Badge variant="success" className="text-[10px] shrink-0">
-              {seiAddressTypeLabel(payoutValidation.type)}
-            </Badge>
-          )}
-          <Button variant="outline" size="sm" asChild className="shrink-0">
-            <Link href="/dashboard/settings">Manage</Link>
-          </Button>
         </CardContent>
       </Card>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <MetricCard title="Total Earned" value={totalEarned} suffix=" SEI" icon={Trophy} accent />
         <MetricCard title="Pending" value={pending} suffix=" SEI" icon={Clock} />
-        <MetricCard title="Available to Claim" value={claimed ? 0 : availableToClaim} suffix=" SEI" icon={Coins} />
+        <MetricCard title="Available to Request" value={claimed ? 0 : availableToClaim} suffix=" SEI" icon={Coins} />
         <MetricCard title="Rank" value={`#${rank}`} icon={Trophy} description="this wave" />
       </div>
 
@@ -151,7 +184,7 @@ export default function RewardsPage() {
       <Card>
         <CardContent className="p-4 flex items-center gap-2 text-xs text-muted-foreground">
           <Trophy className="h-4 w-4 text-primary shrink-0" />
-          Rewards are distributed in SEI at the end of each wave. Pending amounts become claimable once the
+          Rewards are distributed in SEI at the end of each wave. Pending amounts become requestable once the
           maintainer confirms the merged contribution.
         </CardContent>
       </Card>
@@ -161,7 +194,7 @@ export default function RewardsPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ArrowDownToLine className="h-4 w-4 text-primary" />
-              Claim {availableToClaim} SEI
+              Request {availableToClaim} SEI
             </DialogTitle>
             <DialogDescription>
               Review the destination before confirming — on-chain payouts are irreversible.
@@ -190,9 +223,9 @@ export default function RewardsPage() {
 
           <DialogFooter className="pt-1">
             <Button variant="ghost" size="sm" onClick={() => setConfirmOpen(false)}>Cancel</Button>
-            <Button size="sm" className="gap-1.5" onClick={handleConfirmClaim}>
+            <Button size="sm" className="gap-1.5" onClick={handleConfirmRequest}>
               <CheckCircle2 className="h-3.5 w-3.5" />
-              Confirm claim
+              Confirm request
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -28,7 +28,6 @@ import { Badge } from '@/components/ui/badge';
 import { NotificationsPanel } from '@/components/layout/notifications-panel';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useAuthStore } from '@/lib/store/auth-store';
-import { WalletButton } from '@/components/ui/wallet-button';
 import { initials } from '@/lib/utils';
 
 const ROLE_LABELS = {
@@ -86,9 +85,6 @@ export function TopNav({ onMobileMenuOpen, onSearchOpen }: TopNavProps) {
       </div>
 
       <div className="flex items-center gap-2 ml-auto">
-        {/* Wallet */}
-        <WalletButton />
-
         {/* Theme toggle */}
         <div className="flex items-center">
           <ThemeToggle />

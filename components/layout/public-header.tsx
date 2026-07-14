@@ -6,7 +6,6 @@ import { Menu, X, Zap, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/lib/store/auth-store';
-import { WalletButton } from '@/components/ui/wallet-button';
 import { WaveBanner } from '@/components/wave/wave-banner';
 
 const NAV_LINKS = [
@@ -67,7 +66,6 @@ export function PublicHeader() {
 
           {/* CTA */}
           <div className="hidden md:flex items-center gap-2">
-            <WalletButton />
             {isAuthenticated ? (
               <Button size="sm" asChild className="gap-1.5">
                 <Link href="/dashboard">
@@ -112,7 +110,6 @@ export function PublicHeader() {
               </Link>
             ))}
             <div className="pt-3 border-t border-border flex flex-col gap-2">
-              <WalletButton className="w-full" />
               {isAuthenticated ? (
                 <Button size="sm" asChild className="gap-1.5">
                   <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
