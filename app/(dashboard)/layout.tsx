@@ -5,11 +5,17 @@ import { TopNav } from '@/components/layout/topnav';
 import { MobileSidebar } from '@/components/layout/mobile-sidebar';
 import { CommandMenu } from '@/components/layout/command-menu';
 import { WaveBanner } from '@/components/wave/wave-banner';
+import { useAuthStore } from '@/lib/store/auth-store';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [commandOpen, setCommandOpen] = React.useState(false);
+  const { initializeFromStorage, isLoading } = useAuthStore();
+
+  React.useEffect(() => {
+    initializeFromStorage();
+  }, [initializeFromStorage]);
 
   // ⌘K / Ctrl+K global shortcut
   React.useEffect(() => {
@@ -44,7 +50,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         />
         <WaveBanner />
         <main className="flex-1 overflow-y-auto">
-          <div className="p-4 lg:p-6">{children}</div>
+          {isLoading ? (
+            <div className="flex h-full items-center justify-center px-4 py-6">
+              <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+            </div>
+          ) : (
+            <div className="p-4 lg:p-6">{children}</div>
+          )}
         </main>
       </div>
     </div>

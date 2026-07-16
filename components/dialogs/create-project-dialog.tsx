@@ -30,12 +30,9 @@ import { cn, slugify } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { useProjectSubmissions } from '@/lib/store/project-submissions-store';
 import { useAuthStore } from '@/lib/store/auth-store';
+import { useGithubOrgs } from '@/lib/hooks/use-github-orgs';
 
-const MOCK_ORGS = [
-  { id: '1', name: 'SeiSwap Labs' },
-  { id: '2', name: 'SeiFinance' },
-  { id: '3', name: 'SeiGames' },
-];
+
 
 const TECH_OPTIONS = [
   'Rust', 'TypeScript', 'Solidity', 'Python', 'Go', 'React', 'Next.js',
@@ -54,6 +51,7 @@ const schema = z.object({
   description: z.string().min(20, 'Description must be at least 20 characters').max(500),
   repoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   websiteUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  contactEmail: z.string().email('Must be a valid email').optional().or(z.literal('')),
   tags: z.array(z.string()).min(1, 'Select at least one category'),
   techStack: z.array(z.string()).min(1, 'Select at least one technology'),
 });
@@ -71,6 +69,7 @@ export function CreateProjectDialog({ children, onSuccess }: CreateProjectDialog
   const [selectedTech, setSelectedTech] = React.useState<string[]>([]);
   const addSubmission = useProjectSubmissions((s) => s.addSubmission);
   const user = useAuthStore((s) => s.user);
+  const { orgs, isLoading: isLoadingOrgs } = useGithubOrgs();
 
   const {
     register,
@@ -159,11 +158,15 @@ export function CreateProjectDialog({ children, onSuccess }: CreateProjectDialog
                     <SelectValue placeholder="Select organization" />
                   </SelectTrigger>
                   <SelectContent>
-                    {MOCK_ORGS.map((org) => (
-                      <SelectItem key={org.id} value={org.id}>
-                        {org.name}
-                      </SelectItem>
-                    ))}
+                    {isLoadingOrgs ? (
+                      <div className="p-2 text-center text-sm text-muted-foreground">Loading...</div>
+                    ) : (
+                      orgs.map((org) => (
+                        <SelectItem key={org.id} value={org.id}>
+                          {org.login}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               )}
@@ -228,6 +231,21 @@ export function CreateProjectDialog({ children, onSuccess }: CreateProjectDialog
               startIcon={<Globe />}
               {...register('websiteUrl')}
             />
+          </div>
+
+          {/* Contact Email */}
+          <div className="space-y-1.5">
+            <Label htmlFor="project-contact-email">Contact Email</Label>
+            <Input
+              id="project-contact-email"
+              type="email"
+              placeholder="contact@yourproject.com"
+              {...register('contactEmail')}
+              className={cn(errors.contactEmail && 'border-destructive')}
+            />
+            {errors.contactEmail && (
+              <p className="text-xs text-destructive">{errors.contactEmail.message}</p>
+            )}
           </div>
 
           {/* Category tags */}

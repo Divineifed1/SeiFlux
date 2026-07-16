@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
+import { Project } from './project.entity';
 
 export type UserRole = 'admin' | 'maintainer' | 'contributor';
 
@@ -27,6 +28,12 @@ export class User {
 
   @Column({ nullable: true, name: 'organization_id' })
   organizationId?: string;
+
+  @Column({ nullable: true, name: 'wallet_address' })
+  walletAddress?: string;
+
+  @ManyToOne(() => Project, (project) => project.maintainers, { nullable: true })
+  maintainedProject?: Project;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

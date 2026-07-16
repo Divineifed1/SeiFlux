@@ -1,12 +1,11 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Star, Users, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/design-system/status-badge';
-import { useProjectSubmissions } from '@/lib/store/project-submissions-store';
 import { formatNumber } from '@/lib/utils';
 
 export type DashboardProject = {
@@ -26,35 +25,18 @@ export type DashboardProject = {
 
 interface ProjectsTableProps {
   initialProjects: DashboardProject[];
+  isLoading: boolean;
 }
 
-export function ProjectsTable({ initialProjects }: ProjectsTableProps) {
-  const submissions = useProjectSubmissions((s) => s.submissions);
+export function ProjectsTable({ initialProjects, isLoading }: ProjectsTableProps) {
+  const [filter, setFilter] = useState<'all' | 'approved' | 'pending' | 'draft' | 'rejected'>('all');
 
-  const submissionProjects = useMemo(
-    () =>
-      submissions
-        .map((project) => ({
-          id: project.id,
-          name: project.name,
-          org: project.org,
-          slug: project.slug,
-          description: project.description,
-          tags: project.tags,
-          tech: project.tech,
-          stars: 0,
-          forks: 0,
-          contributors: 0,
-          openOpps: 0,
-          status: project.status,
-        })),
-    [submissions],
-  );
-
-  const projects = useMemo(
-    () => [...initialProjects, ...submissionProjects],
-    [submissionProjects, initialProjects],
-  );
+  const filteredProjects = useMemo(() => {
+    if (filter === 'all') {
+      return initialProjects;
+    }
+    return initialProjects.filter((p) => p.status === filter);
+  }, [initialProjects, filter]);
 
   return (
     <div className="space-y-6">
@@ -66,23 +48,28 @@ export function ProjectsTable({ initialProjects }: ProjectsTableProps) {
           />
         </div>
         <div className="flex items-center gap-2 ml-auto">
-          {(['all', 'approved', 'pending', 'draft'] as const).map((filter) => (
+          {(['all', 'approved', 'pending', 'draft', 'rejected'] as const).map((f) => (
             <button
-              key={filter}
+              key={f}
+              onClick={() => setFilter(f)}
               className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                filter === 'all'
+                filter === f
                   ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
-              {filter === 'all' ? 'All' : filter.charAt(0).toUpperCase() + filter.slice(1)}
+              {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
           ))}
-          <span className="text-xs text-muted-foreground ml-2">{projects.length} projects</span>
+          <span className="text-xs text-muted-foreground ml-2">{filteredProjects.length} projects</span>
         </div>
       </div>
 
-      {projects.length === 0 ? (
+      {isLoading ? (
+        <div className="rounded-xl border border-border bg-card p-10 text-center">
+          <div className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin mx-auto" />
+        </div>
+      ) : filteredProjects.length === 0 ? (
         <div className="rounded-xl border border-border bg-card p-10 text-center">
           <p className="text-sm font-medium text-foreground">No projects yet</p>
           <p className="text-xs text-muted-foreground mt-1">Create your first project listing to attract contributors to your Sei project.</p>
@@ -100,7 +87,7 @@ export function ProjectsTable({ initialProjects }: ProjectsTableProps) {
               </tr>
             </thead>
             <tbody>
-              {projects.map((project) => (
+              {filteredProjects.map((project) => (
                 <tr
                   key={project.id}
                   className="border-b border-border/50 last:border-0 hover:bg-muted/20 transition-colors"

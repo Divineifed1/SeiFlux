@@ -9,8 +9,23 @@ import { ContributorDashboard } from './contributor-dashboard';
  */
 export function DashboardView() {
   const user = useAuthStore((s) => s.user);
+  const isLoading = useAuthStore((s) => s.isLoading);
 
-  if (!user) return null;
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="text-center text-sm text-muted-foreground">
+        Unable to load your dashboard. Please sign in again.
+      </div>
+    );
+  }
 
   if (user.role === 'contributor') {
     return <ContributorDashboard user={user} />;

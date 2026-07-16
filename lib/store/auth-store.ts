@@ -1,6 +1,21 @@
 'use client';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+async function updateUserPayoutAddress(userId: string, payoutAddress: string): Promise<AuthUser> {
+  const res = await fetch(`${API_BASE}/users/${userId}/payout-address`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ payoutAddress }),
+  });
+  if (!res.ok) {
+    throw new Error('Failed to update payout address');
+  }
+  return res.json();
+}
 
 export type UserRole = 'admin' | 'maintainer' | 'contributor';
 
@@ -26,6 +41,7 @@ interface AuthState {
   initializeFromStorage: () => void;
   setWallet: (walletAddress: string, walletType: string) => void;
   setPayoutAddress: (payoutAddress: string) => void;
+  updatePayoutAddress: (payoutAddress: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -51,6 +67,13 @@ export const useAuthStore = create<AuthState>()(
         const user = get().user;
         if (!user) return;
         set({ user: { ...user, payoutAddress } });
+      },
+
+      updatePayoutAddress: async (payoutAddress: string) => {
+        const user = get().user;
+        if (!user) return;
+        const updatedUser = await updateUserPayoutAddress(user.id, payoutAddress);
+        set({ user: updatedUser });
       },
 
       initializeFromStorage: () => {

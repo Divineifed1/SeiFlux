@@ -30,6 +30,7 @@ interface WizardState {
   description: string;
   categories: string[];
   techStack: string[];
+  email: string;
   // Step 2
   repoFullName: string;
   manualRepoUrl: string;
@@ -73,7 +74,7 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
 }
 
 const INITIAL_STATE: WizardState = {
-  name: '', slug: '', description: '', categories: [], techStack: [],
+  name: '', slug: '', description: '', categories: [], techStack: [], email: '',
   repoFullName: '', manualRepoUrl: '',
   guidelines: '', welcomeMessage: '', difficulty: 'intermediate', bountyEnabled: false, requiredSkills: '',
 };
@@ -86,15 +87,20 @@ export default function NewProjectPage() {
   const [state, dispatch] = React.useReducer(reducer, INITIAL_STATE);
   const [publishing, setPublishing] = React.useState(false);
   const [repoSearch, setRepoSearch] = React.useState('');
-  const addSubmission = useProjectSubmissions((s) => s.addSubmission);
   const user = useAuthStore((s) => s.user);
+
+  React.useEffect(() => {
+    if (user?.email) {
+      dispatch({ type: 'SET_FIELD', field: 'email', value: user.email });
+    }
+  }, [user]);
 
   const filteredRepos = MOCK_REPOS.filter((r) =>
     r.fullName.toLowerCase().includes(repoSearch.toLowerCase())
   );
 
   const canProceed = (): boolean => {
-    if (step === 0) return state.name.trim().length >= 2 && state.description.trim().length >= 10;
+    if (step === 0) return state.name.trim().length >= 2 && state.description.trim().length >= 10 && state.email.trim().length > 5;
     if (step === 1) return !!(state.repoFullName || state.manualRepoUrl.trim());
     if (step === 2) return state.guidelines.trim().length >= 10;
     return true;
@@ -102,24 +108,44 @@ export default function NewProjectPage() {
 
   const handlePublish = async () => {
     setPublishing(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    addSubmission({
-      name: state.name,
-      slug: state.slug || slugify(state.name),
-      org: user?.name ?? '—',
-      submittedBy: user?.githubUsername ?? 'you',
-      description: state.description,
-      tags: [...state.categories, ...state.techStack],
-      tech: state.techStack,
-      repoUrl: state.manualRepoUrl || undefined,
-    });
-    setPublishing(false);
-    toast({
-      variant: 'success',
-      title: 'Project submitted for review!',
-      description: `"${state.name}" is awaiting admin approval before it goes live.`,
-    });
-    setStep(4);
+    try {
+      const submissionData = {
+        name: state.name,
+        slug: state.slug || slugify(state.name),
+        submittedBy: user?.githubUsername ?? 'anonymous',
+        contactEmail: state.email,
+        description: state.description,
+        repoUrl: state.manualRepoUrl || state.repoFullName || undefined,
+        tags: state.categories,
+        techStack: state.techStack,
+      };
+
+      const response = await fetch('/api/project-submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(submissionData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit project. Please try again.');
+      }
+
+      toast({
+        variant: 'success',
+        title: 'Project submitted for review!',
+        description: `"${state.name}" is awaiting admin approval. We'll notify you via email.`,
+      });
+      setStep(4);
+    } catch (error) {
+      console.error('Submission Error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Submission Failed',
+        description: error instanceof Error ? error.message : 'An unknown error occurred.',
+      });
+    } finally {
+      setPublishing(false);
+    }
   };
 
   const handleNext = () => {
@@ -185,6 +211,18 @@ export default function NewProjectPage() {
                 value={state.name}
                 onChange={(e) => dispatch({ type: 'SET_NAME', name: e.target.value })}
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="proj-email">Contact Email <span className="text-destructive">*</span></Label>
+              <Input
+                id="proj-email"
+                type="email"
+                placeholder="you@example.com"
+                value={state.email}
+                onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'email', value: e.target.value })}
+              />
+              <p className="text-[10px] text-muted-foreground">We'll use this to notify you about your project's status.</p>
             </div>
 
             <div className="space-y-1.5">

@@ -13,97 +13,51 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { cn, formatRelativeTime } from '@/lib/utils';
 
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  type: 'application' | 'project' | 'organization' | 'system';
-  read: boolean;
-  href?: string;
-  createdAt: Date;
-}
-
-const MOCK_NOTIFICATIONS: Notification[] = [
-  {
-    id: '1',
-    title: 'New application received',
-    message: 'alex_dev applied to "Fix slippage calculation" on SeiSwap DEX.',
-    type: 'application',
-    read: false,
-    href: '/dashboard/applications',
-    createdAt: new Date(Date.now() - 1000 * 60 * 12),
-  },
-  {
-    id: '2',
-    title: 'Project approved',
-    message: 'SeiLend Protocol has been approved and is now publicly listed.',
-    type: 'project',
-    read: false,
-    href: '/dashboard/projects',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
-  },
-  {
-    id: '3',
-    title: 'New application received',
-    message: 'sarah_builds applied to "Build analytics dashboard" on SeiSwap DEX.',
-    type: 'application',
-    read: false,
-    href: '/dashboard/applications',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4),
-  },
-  {
-    id: '4',
-    title: 'Organization connected',
-    message: 'SeiSwap Labs GitHub organization has been successfully connected.',
-    type: 'organization',
-    read: true,
-    href: '/dashboard/organizations',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
-  },
-  {
-    id: '5',
-    title: 'Platform update',
-    message: 'New contributor discovery features are now available on the platform.',
-    type: 'system',
-    read: true,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
-  },
-];
+import { useNotifications, useUnreadCount, useMarkNotificationRead, useMarkAllRead } from '@/lib/hooks/use-notifications';
 
 const TYPE_ICONS = {
-  application: FileText,
-  project: FolderKanban,
-  organization: Building2,
-  system: Shield,
+  application_accepted: FileText,
+  application_rejected: FileText,
+  new_issue: FileText,
+  issue_application: FileText,
+  maintainer_message: FileText,
+  project_update: FolderKanban,
+  pr_merged: FolderKanban,
+  new_contributor: Building2,
+  reward_received: Shield,
 };
 
 const TYPE_COLORS = {
-  application: 'text-blue-400 bg-blue-500/10',
-  project: 'text-primary bg-primary/10',
-  organization: 'text-purple-400 bg-purple-500/10',
-  system: 'text-muted-foreground bg-muted',
+  application_accepted: 'text-blue-400 bg-blue-500/10',
+  application_rejected: 'text-red-400 bg-red-500/10',
+  new_issue: 'text-green-400 bg-green-500/10',
+  issue_application: 'text-yellow-400 bg-yellow-500/10',
+  maintainer_message: 'text-purple-400 bg-purple-500/10',
+  project_update: 'text-primary bg-primary/10',
+  pr_merged: 'text-primary bg-primary/10',
+  new_contributor: 'text-purple-400 bg-purple-500/10',
+  reward_received: 'text-muted-foreground bg-muted',
 };
 
 export function NotificationsPanel() {
-  const [notifications, setNotifications] = React.useState(MOCK_NOTIFICATIONS);
+  const { data: notifications = [], isLoading } = useNotifications();
+  const { data: unreadCount = 0 } = useUnreadCount();
+  const markReadMutation = useMarkNotificationRead();
+  const markAllReadMutation = useMarkAllRead();
   const [open, setOpen] = React.useState(false);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
   const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    markAllReadMutation.mutate();
   };
 
   const markRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    markReadMutation.mutate(id);
   };
 
   const dismiss = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    // Add dismiss logic here if needed
   };
 
   return (
@@ -151,7 +105,11 @@ export function NotificationsPanel() {
 
         {/* Notification list */}
         <ScrollArea className="max-h-[420px]">
-          {notifications.length === 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-10">
+              <div className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+            </div>
+          ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
               <Bell className="h-8 w-8 text-muted-foreground/30 mb-3" />
               <p className="text-sm font-medium text-foreground">All caught up</p>
@@ -214,7 +172,7 @@ export function NotificationsPanel() {
                         {notification.message}
                       </p>
                       <p className="text-[10px] text-muted-foreground/60 mt-1">
-                        {formatRelativeTime(notification.createdAt)}
+                        {formatRelativeTime(new Date(notification.createdAt))}
                       </p>
                     </div>
                   </div>

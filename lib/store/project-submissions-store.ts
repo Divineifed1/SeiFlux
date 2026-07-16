@@ -15,6 +15,7 @@ export interface SubmittedProject {
   tags: string[];
   tech: string[];
   repoUrl?: string;
+  contactEmail?: string;
   status: SubmissionStatus;
 }
 

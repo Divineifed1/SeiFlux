@@ -1,5 +1,5 @@
 'use client';
-import { useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/lib/store/auth-store';
 
 export type RewardStatus = 'paid' | 'pending' | 'processing';
@@ -9,7 +9,7 @@ export interface RewardEntry {
   description: string;
   amount: number;
   status: RewardStatus;
-  date: Date;
+  date: string;
   wave?: string;
   issueTitle?: string;
 }
@@ -22,77 +22,43 @@ export interface RewardsResult {
   entries: RewardEntry[];
 }
 
-const MOCK_REWARDS: RewardEntry[] = [
-  {
-    id: 'rw_1',
-    description: 'Bounty payout — Create SeiSwap SDK usage examples',
-    amount: 320,
-    status: 'paid',
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
-    wave: 'Wave 6',
-    issueTitle: 'Create SeiSwap SDK usage examples',
-  },
-  {
-    id: 'rw_2',
-    description: 'Bounty payout — Optimise RPC batch calls',
-    amount: 180,
-    status: 'pending',
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1),
-    wave: 'Wave 7',
-    issueTitle: 'Optimise RPC batch calls',
-  },
-  {
-    id: 'rw_3',
-    description: 'Review bonus — Wave 7 participation',
-    amount: 50,
-    status: 'processing',
-    date: new Date(Date.now() - 1000 * 60 * 60 * 12),
-    wave: 'Wave 7',
-  },
-  {
-    id: 'rw_4',
-    description: 'Bounty payout — Fix slippage calculation edge case',
-    amount: 140,
-    status: 'pending',
-    date: new Date(Date.now() - 1000 * 60 * 60 * 8),
-    wave: 'Wave 7',
-    issueTitle: 'Fix slippage calculation edge case',
-  },
-  {
-    id: 'rw_5',
-    description: 'Bounty payout — SeiSwap router refactor',
-    amount: 260,
-    status: 'paid',
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 21),
-    wave: 'Wave 5',
-    issueTitle: 'SeiSwap router refactor',
-  },
-];
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-export function useRewards(): RewardsResult {
+async function fetchRewards(userId: string): Promise<RewardsResult> {
+  const res = await fetch(`${API_BASE}/rewards?userId=${encodeURIComponent(userId)}`);
+  if (!res.ok) throw new Error('Failed to fetch rewards');
+  return res.json();
+}
+
+async function requestRewards(userId: string): Promise<{ message: string; count: number }> {
+  const res = await fetch(`${API_BASE}/rewards/request`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId }),
+  });
+  if (!res.ok) throw new Error('Failed to request rewards');
+  return res.json();
+}
+
+export function useRewards() {
   const user = useAuthStore((s) => s.user);
+  const userId = user?.id ?? '';
+  return useQuery({
+    queryKey: ['rewards', userId],
+    queryFn: () => fetchRewards(userId),
+    enabled: !!userId,
+    staleTime: 30_000,
+  });
+}
 
-  return useMemo(() => {
-    void user;
-    const totalEarned = MOCK_REWARDS.filter((r) => r.status === 'paid').reduce(
-      (sum, r) => sum + r.amount,
-      0
-    );
-    const pending = MOCK_REWARDS.filter((r) => r.status !== 'paid').reduce(
-      (sum, r) => sum + r.amount,
-      0
-    );
-    const availableToClaim = MOCK_REWARDS.filter((r) => r.status === 'pending').reduce(
-      (sum, r) => sum + r.amount,
-      0
-    );
-
-    return {
-      totalEarned,
-      pending,
-      availableToClaim,
-      rank: 14,
-      entries: MOCK_REWARDS,
-    };
-  }, [user]);
+export function useRequestRewards() {
+  const user = useAuthStore((s) => s.user);
+  const queryClient = useQueryClient();
+  const userId = user?.id ?? '';
+  return useMutation({
+    mutationFn: () => requestRewards(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['rewards', userId] });
+    },
+  });
 }

@@ -43,7 +43,7 @@ export function PublicFooter() {
               </h3>
               <ul className="space-y-2">
                 {links.map((link) => (
-                  <li key={link.href}>
+                  <li key={`${category}-${link.label}`}>
                     <Link
                       href={link.href}
                       className="text-xs text-muted-foreground hover:text-foreground transition-colors"

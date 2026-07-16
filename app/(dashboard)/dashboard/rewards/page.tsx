@@ -32,14 +32,22 @@ const REWARD_STATUS_CONFIG: Record<
   processing: { label: 'Processing', className: 'bg-blue-500/10 text-blue-400 ring-blue-500/20', icon: Loader2 },
 };
 
-function formatDate(d: Date): string {
-  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(d);
+function formatDate(d: Date | string): string {
+  const date = typeof d === 'string' ? new Date(d) : d;
+  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
 }
 
 export default function RewardsPage() {
-  const { totalEarned, pending, availableToClaim, rank, entries } = useRewards();
+  const { data, isLoading } = useRewards();
+  const {
+    totalEarned = 0,
+    pending = 0,
+    availableToClaim = 0,
+    rank = 0,
+    entries = [],
+  } = data ?? {};
   const user = useAuthStore((s) => s.user);
-  const setPayoutAddress = useAuthStore((s) => s.setPayoutAddress);
+  const updatePayoutAddress = useAuthStore((s) => s.updatePayoutAddress);
   const { toast } = useToast();
 
   const payout = user?.payoutAddress ?? '';
@@ -59,14 +67,18 @@ export default function RewardsPage() {
   const claimable = availableToClaim > 0 && !claimed;
   const canRequest = payoutValid && claimable;
 
-  const handleSaveAddress = () => {
+  const handleSaveAddress = async () => {
     const v = validateSeiAddress(draft);
     if (!v.valid) {
       toast({ title: 'Invalid address', description: 'Enter a valid Sei native or EVM address.', variant: 'destructive' });
       return;
     }
-    setPayoutAddress(v.normalized);
-    toast({ variant: 'success', title: 'Wallet address saved', description: `Rewards will be sent to ${formatSeiAddress(v.normalized)}.` });
+    try {
+      await updatePayoutAddress(v.normalized);
+      toast({ variant: 'success', title: 'Wallet address saved', description: `Rewards will be sent to ${formatSeiAddress(v.normalized)}.` });
+    } catch (error) {
+      toast({ title: 'Error saving address', description: 'There was an error saving your wallet address. Please try again.', variant: 'destructive' });
+    }
   };
 
   const handleConfirmRequest = () => {

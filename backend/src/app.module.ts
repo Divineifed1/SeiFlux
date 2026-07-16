@@ -10,6 +10,9 @@ import { WavesModule } from './waves/waves.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { UsersModule } from './users/users.module';
+import { RewardsModule } from './rewards/rewards.module';
+import { LeaderboardsModule } from './leaderboards/leaderboards.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -48,6 +51,9 @@ import { UsersModule } from './users/users.module';
     ApplicationsModule,
     OrganizationsModule,
     UsersModule,
+    RewardsModule,
+    LeaderboardsModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

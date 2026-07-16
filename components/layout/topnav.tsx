@@ -141,15 +141,18 @@ export function TopNav({ onMobileMenuOpen, onSearchOpen }: TopNavProps) {
               </Link>
             </DropdownMenuItem>
 
-            {user.role === 'admin' && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex items-center gap-2 text-primary">
-                  <Shield className="h-4 w-4" />
-                  Admin Panel
-                </DropdownMenuItem>
-              </>
-            )}
+            {user.role === 'admin' &&
+              (user.githubUsername === 'Divineifed1' || user.githubUsername === 'mirastan') && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/admin" className="flex items-center gap-2 text-primary">
+                      <Shield className="h-4 w-4" />
+                      Admin Panel
+                    </Link>
+                  </DropdownMenuItem>
+                </>
+              )}
 
             <DropdownMenuSeparator />
 

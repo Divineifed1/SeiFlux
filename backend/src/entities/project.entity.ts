@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { User } from './user.entity';
 
 @Entity('projects')
 export class Project {
@@ -19,6 +20,9 @@ export class Project {
 
   @Column({ type: 'enum', enum: ['draft', 'pending', 'approved', 'rejected', 'suspended'], default: 'draft' })
   status: string;
+
+  @OneToMany(() => User, (user) => user.maintainedProject)
+  maintainers: User[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

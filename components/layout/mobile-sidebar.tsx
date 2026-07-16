@@ -145,10 +145,7 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent
-        className="fixed inset-y-0 left-0 z-50 h-full w-[260px] max-w-none rounded-none p-0 border-r border-border shadow-xl data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left"
-        style={{ animation: open ? 'slide-in-from-left 0.2s ease-out' : undefined }}
-      >
+      <DialogContent className="w-[70%] h-[90vh] flex flex-col p-0">
         <DialogTitle className="sr-only">Navigation</DialogTitle>
 
         {/* Header */}

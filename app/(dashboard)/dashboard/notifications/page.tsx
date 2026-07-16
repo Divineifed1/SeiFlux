@@ -2,7 +2,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import {
-  Bell, CheckCheck, Trash2, CheckCircle2, XCircle, Zap, MessageSquare, GitMerge, Users,
+  Bell, CheckCheck, Trash2, CheckCircle2, XCircle, Zap, MessageSquare, GitMerge, Users, Coins,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,10 +21,12 @@ const TYPE_CONFIG: Record<
   application_accepted: { label: 'Accepted', icon: CheckCircle2, color: 'text-green-400 bg-green-500/10' },
   application_rejected: { label: 'Rejected', icon: XCircle, color: 'text-red-400 bg-red-500/10' },
   new_issue: { label: 'Issue', icon: Zap, color: 'text-yellow-400 bg-yellow-500/10' },
+  issue_application: { label: 'Issue Application', icon: Bell, color: 'text-slate-400 bg-slate-500/10' },
   maintainer_message: { label: 'Message', icon: MessageSquare, color: 'text-blue-400 bg-blue-500/10' },
   project_update: { label: 'Project', icon: Bell, color: 'text-primary bg-primary/10' },
   pr_merged: { label: 'PR Merged', icon: GitMerge, color: 'text-green-400 bg-green-500/10' },
   new_contributor: { label: 'New Member', icon: Users, color: 'text-purple-400 bg-purple-500/10' },
+  reward_received: { label: 'Reward', icon: Coins, color: 'text-amber-400 bg-amber-500/10' },
 };
 
 const FILTER_TABS: { label: string; value: NotificationType | 'all' | 'unread' }[] = [

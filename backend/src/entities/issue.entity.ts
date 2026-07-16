@@ -31,6 +31,9 @@ export class Issue {
   @Column({ default: 0, name: 'points' })
   points: number;
 
+  @Column({ type: 'uuid', name: 'assignee_id', nullable: true })
+  assigneeId?: string;
+
   @Column({ type: 'simple-array', nullable: true })
   skills: string;
 

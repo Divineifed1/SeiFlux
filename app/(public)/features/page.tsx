@@ -176,55 +176,7 @@ export default function FeaturesPage() {
         ))}
       </div>
 
-      {/* Comparison table */}
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 mt-24">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl font-bold text-foreground mb-2">What each role can do</h2>
-          <p className="text-sm text-muted-foreground">
-            A clear breakdown of permissions across user types.
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-border overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/30">
-                <th className="text-left px-5 py-3 font-medium text-muted-foreground">Capability</th>
-                {['Admin', 'Maintainer', 'Contributor'].map((role) => (
-                  <th key={role} className="text-center px-4 py-3 font-medium text-muted-foreground">
-                    {role}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { cap: 'Browse projects & opportunities', admin: true, maintainer: true, contributor: true },
-                { cap: 'Create organization', admin: true, maintainer: true, contributor: false },
-                { cap: 'Publish projects', admin: true, maintainer: true, contributor: false },
-                { cap: 'Apply to contribute', admin: false, maintainer: false, contributor: true },
-                { cap: 'Review applications', admin: true, maintainer: true, contributor: false },
-                { cap: 'Moderate listings', admin: true, maintainer: false, contributor: false },
-                { cap: 'View platform analytics', admin: true, maintainer: false, contributor: false },
-                { cap: 'Manage all users', admin: true, maintainer: false, contributor: false },
-              ].map((row) => (
-                <tr key={row.cap} className="border-b border-border/50 last:border-0">
-                  <td className="px-5 py-3 text-foreground">{row.cap}</td>
-                  {(['admin', 'maintainer', 'contributor'] as const).map((role) => (
-                    <td key={role} className="px-4 py-3 text-center">
-                      {row[role] ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-400 mx-auto" />
-                      ) : (
-                        <span className="text-muted-foreground/30">—</span>
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      
     </div>
   );
 }
