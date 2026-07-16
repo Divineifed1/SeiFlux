@@ -13,12 +13,25 @@ const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'muted'> = {
 };
 
 export default function LeaderboardPage() {
-  const { waves, perWave } = useLeaderboard();
-  const activeWave = waves.find((w) => w.status === 'active') ?? waves[0];
-  const [selectedWaveId, setSelectedWaveId] = React.useState(activeWave.id);
+  const { data, isLoading } = useLeaderboard();
 
-  const entries = perWave[selectedWaveId] ?? [];
-  const selectedWave = waves.find((w) => w.id === selectedWaveId)!;
+  const { waves = [], perWave = {} } = data || {};
+
+  const activeWave = waves.find((w) => w.status === 'active') ?? waves[0];
+  const [selectedWaveId, setSelectedWaveId] = React.useState(activeWave?.id);
+
+  React.useEffect(() => {
+    if (activeWave && !selectedWaveId) {
+      setSelectedWaveId(activeWave.id);
+    }
+  }, [activeWave, selectedWaveId]);
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Or a proper skeleton loader
+  }
+
+  const entries = selectedWaveId ? perWave[selectedWaveId] ?? [] : [];
+  const selectedWave = waves.find((w) => w.id === selectedWaveId);
   const top = entries[0];
 
   return (
@@ -29,7 +42,7 @@ export default function LeaderboardPage() {
         actions={
           <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
             <Medal className="h-4 w-4" />
-            {selectedWave.name}
+            {selectedWave?.name || 'Select a wave'}
           </span>
         }
       />
@@ -66,7 +79,7 @@ export default function LeaderboardPage() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              {selectedWave.name} champion
+              {selectedWave?.name || 'Wave'} champion
             </p>
             <p className="text-lg font-bold text-foreground truncate">{top.name}</p>
             <p className="text-xs text-muted-foreground">@{top.handle} · {top.points} points</p>

@@ -7,7 +7,8 @@ import { useLeaderboard } from '@/lib/hooks/use-leaderboard';
 import { useAuthStore } from '@/lib/store/auth-store';
 
 export default function AdminLeaderboardPage() {
-  const { allWaves } = useLeaderboard();
+  const { data } = useLeaderboard();
+  const allWaves = data?.allWaves || [];
   const user = useAuthStore((s) => s.user);
 
   if (user?.role !== 'admin') {

@@ -117,7 +117,6 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       items: [
         { label: 'Issues', href: '/dashboard/maintainer/issues', icon: Zap },
         { label: 'Analytics', href: '/dashboard/maintainer/analytics', icon: BarChart2 },
-        { label: 'Leaderboard', href: '/dashboard/leaderboard', icon: Medal },
         { label: 'Projects', href: '/dashboard/projects', icon: FolderKanban },
         { label: 'Contributors', href: '/dashboard/contributors', icon: Users },
       ],
