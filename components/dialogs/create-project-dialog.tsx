@@ -101,11 +101,11 @@ export function CreateProjectDialog({ children, onSuccess }: CreateProjectDialog
 
   const onSubmit = async (data: FormValues) => {
     await new Promise((r) => setTimeout(r, 600));
-    const org = MOCK_ORGS.find((o) => o.id === data.organizationId);
+    const org = orgs.find((o) => o.id === data.organizationId);
     addSubmission({
       name: data.title,
       slug: slugify(data.title),
-      org: org?.name ?? '—',
+      org: org?.login ?? '—',
       submittedBy: user?.githubUsername ?? 'you',
       description: data.description,
       tags: [...data.tags, ...data.techStack],

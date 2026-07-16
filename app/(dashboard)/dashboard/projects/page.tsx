@@ -11,6 +11,17 @@ export default function ProjectsPage() {
   const user = useAuthStore((s) => s.user);
   const { data: projects = [], isLoading } = useProjects(user?.id);
 
+  const dashboardProjects = projects.map((p) => ({
+    ...p,
+    org: p.organizationId || 'Personal',
+    openOpps: p.openIssues || 0,
+    stars: p.stars || 0,
+    forks: p.forks || 0,
+    contributors: p.contributors || 0,
+    tags: p.tags || [],
+    tech: p.tech || [],
+  }));
+
   return (
     <div className="space-y-6 max-w-5xl">
       <PageHeader
@@ -26,7 +37,7 @@ export default function ProjectsPage() {
         }
       />
 
-      <ProjectsTable initialProjects={projects} isLoading={isLoading} />
+      <ProjectsTable initialProjects={dashboardProjects} isLoading={isLoading} />
     </div>
   );
 }

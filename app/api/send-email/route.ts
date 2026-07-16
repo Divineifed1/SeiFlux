@@ -46,8 +46,9 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Error sending email:', error);
     // It's good practice to check for SendGrid-specific errors
-    if (error.response) {
-      console.error(error.response.body)
+        if (error instanceof Object && 'response' in error) {
+      const responseError = error as { response: { body: string } };
+      console.error(responseError.response.body);
     }
     return NextResponse.json({ error: 'Failed to send email.' }, { status: 500 });
   }

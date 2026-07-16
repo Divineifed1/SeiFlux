@@ -222,7 +222,7 @@ export default function NewProjectPage() {
                 value={state.email}
                 onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'email', value: e.target.value })}
               />
-              <p className="text-[10px] text-muted-foreground">We'll use this to notify you about your project's status.</p>
+              <p className="text-[10px] text-muted-foreground">We&apos;ll use this to notify you about your project&apos;s status.</p>
             </div>
 
             <div className="space-y-1.5">
