@@ -11,7 +11,10 @@ export class ProjectsController {
   ) {}
 
   @Get()
-  async findAll() {
+  async findAll(@Query('orgId') orgId?: string) {
+    if (orgId) {
+      return this.projectRepository.find({ where: { organizationId: orgId } });
+    }
     return this.projectRepository.find();
   }
 

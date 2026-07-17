@@ -12,24 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageHeader } from '@/components/design-system/page-header';
 import { formatNumber } from '@/lib/utils';
-
-const CONNECTED_REPOS = [
-  {
-    id: '1', name: 'seiswap-dex', fullName: 'seiswap-labs/seiswap-dex',
-    description: 'Main DEX protocol contracts and frontend', stars: 1243, branch: 'main',
-    synced: true, lastSync: '2 min ago', openIssues: 14, language: 'TypeScript', visibility: 'public' as const,
-  },
-  {
-    id: '2', name: 'seiswap-sdk', fullName: 'seiswap-labs/seiswap-sdk',
-    description: 'TypeScript SDK for SeiSwap integration', stars: 348, branch: 'main',
-    synced: true, lastSync: '5 min ago', openIssues: 6, language: 'TypeScript', visibility: 'public' as const,
-  },
-  {
-    id: '3', name: 'seiswap-subgraph', fullName: 'seiswap-labs/seiswap-subgraph',
-    description: 'TheGraph subgraph for SeiSwap events', stars: 89, branch: 'main',
-    synced: false, lastSync: '2 hours ago', openIssues: 3, language: 'AssemblyScript', visibility: 'public' as const,
-  },
-];
+import { useGithubRepos } from '@/lib/hooks/use-github';
 
 const CONNECT_STEPS = ['Connect', 'Permissions', 'Install App', 'Success'];
 
@@ -37,8 +20,9 @@ export default function GitHubPage() {
   const [search, setSearch] = React.useState('');
   const [connectStep, setConnectStep] = React.useState(0);
   const [connecting, setConnecting] = React.useState(false);
+  const { data: repos, isLoading } = useGithubRepos();
 
-  const filteredRepos = CONNECTED_REPOS.filter((r) =>
+  const filteredRepos = (repos ?? []).filter((r) =>
     r.fullName.toLowerCase().includes(search.toLowerCase()) ||
     r.description.toLowerCase().includes(search.toLowerCase())
   );
@@ -78,7 +62,7 @@ export default function GitHubPage() {
                 <div>
                   <p className="text-sm font-semibold text-foreground">GitHub Connected</p>
                   <p className="text-xs text-muted-foreground">
-                    @seiswap-labs · {CONNECTED_REPOS.length} repositories synced
+                    @seiswap-labs · {(repos ?? []).length} repositories synced
                   </p>
                 </div>
               </div>
@@ -181,8 +165,39 @@ export default function GitHubPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredRepos.map((repo) => (
-                  <tr key={repo.id} className="border-b border-border/50 last:border-0 hover:bg-muted/20 transition-colors">
+                {isLoading ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <tr key={i} className="border-b border-border/50 last:border-0">
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="h-3.5 w-3.5 rounded bg-muted animate-pulse shrink-0" />
+                          <div className="space-y-1.5">
+                            <div className="h-3.5 w-48 rounded bg-muted animate-pulse" />
+                            <div className="h-3 w-64 rounded bg-muted/60 animate-pulse" />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 hidden md:table-cell">
+                        <div className="h-3 w-16 rounded bg-muted animate-pulse" />
+                      </td>
+                      <td className="px-4 py-4 hidden lg:table-cell">
+                        <div className="h-3 w-28 rounded bg-muted animate-pulse" />
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-3 w-20 rounded bg-muted animate-pulse" />
+                      </td>
+                      <td className="px-4 py-4" />
+                    </tr>
+                  ))
+                ) : filteredRepos.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-5 py-10 text-center text-sm text-muted-foreground">
+                      {search ? 'No repositories match your search.' : 'No repositories found.'}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredRepos.map((repo) => (
+                   <tr key={repo.id} className="border-b border-border/50 last:border-0 hover:bg-muted/20 transition-colors">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
                         {repo.visibility === 'public'
@@ -191,7 +206,7 @@ export default function GitHubPage() {
                         }
                         <div>
                           <a
-                            href={`https://github.com/${repo.fullName}`}
+                            href={repo.url || `https://github.com/${repo.fullName}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-sm font-medium text-foreground hover:text-primary transition-colors flex items-center gap-1"
@@ -249,7 +264,8 @@ export default function GitHubPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
           </div>

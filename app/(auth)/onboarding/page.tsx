@@ -16,7 +16,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { useAuthStore, MOCK_MAINTAINER, MOCK_CONTRIBUTOR } from '@/lib/store/auth-store';
 
 const STEPS = ['Role', 'Profile', 'Done'];
 
@@ -24,14 +23,11 @@ type Role = 'maintainer' | 'contributor';
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const login = useAuthStore((s) => s.login);
   const [step, setStep] = React.useState(0);
   const [role, setRole] = React.useState<Role | null>(null);
 
-  function completeOnboarding() {
-    const user = role === 'maintainer' ? MOCK_MAINTAINER : MOCK_CONTRIBUTOR;
-    document.cookie = 'sei_auth_token=mock_token; path=/; max-age=86400';
-    login(user);
+  function finishOnboarding() {
+    router.push('/sign-in');
   }
 
   const ROLES = [
@@ -216,7 +212,7 @@ export default function OnboardingPage() {
                 <Button
                   type="button"
                   className="flex-1 gap-2"
-                  onClick={() => { completeOnboarding(); setStep(2); }}
+                  onClick={() => { finishOnboarding(); setStep(2); }}
                 >
                   Continue
                   <ArrowRight className="h-4 w-4" />
@@ -244,17 +240,17 @@ export default function OnboardingPage() {
             <div className="space-y-2.5">
               <Button
                 className="w-full gap-2"
-                onClick={() => router.push('/dashboard')}
+                onClick={() => router.push('/sign-in')}
               >
                 {role === 'maintainer' ? (
                   <>
                     <Building2 className="h-4 w-4" />
-                    Go to Dashboard
+                    Continue to sign in
                   </>
                 ) : (
                   <>
                     <Users className="h-4 w-4" />
-                    Go to Dashboard
+                    Continue to sign in
                   </>
                 )}
               </Button>

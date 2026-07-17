@@ -13,6 +13,7 @@ import {
   Code2,
   ChevronRight,
   Clock,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,76 +23,19 @@ import { StatusBadge } from '@/components/design-system/status-badge';
 import { GithubIcon } from '@/components/ui/github-icon';
 import { IssuesList } from './issues-list';
 import { useProjectSubmissions } from '@/lib/store/project-submissions-store';
-
-// Mock data — replace with real fetch by slug
-const PROJECT = {
-  name: 'SeiSwap DEX',
-  slug: 'seiswap-dex',
-  org: 'SeiSwap Labs',
-  description:
-    'Decentralized exchange built natively on Sei for ultra-fast, low-cost token swaps with concentrated liquidity.',
-  longDescription: `SeiSwap is a next-generation decentralized exchange (DEX) built natively on the Sei blockchain.
-
-  Leveraging Sei's parallelized EVM and ultra-low block times, SeiSwap delivers a trading experience that rivals centralized exchanges while remaining fully permissionless and non-custodial.
-
-  The protocol implements concentrated liquidity positions (similar to Uniswap v3) allowing liquidity providers to earn higher fees with capital efficiency. Our novel "Sei-native" architecture takes advantage of the chain's built-in order book matching to achieve sub-100ms settlement finality.`,
-  tags: ['DeFi', 'AMM', 'Concentrated Liquidity'],
-  tech: ['Rust', 'TypeScript', 'React', 'CosmWasm'],
-  stars: 1243,
-  forks: 89,
-  contributors: 18,
-  openOpportunities: 12,
-  status: 'approved',
-  website: 'https://seiswap.example.com',
-  github: 'https://github.com/seiswap/seiswap-dex',
-};
-
-const ISSUES = [
-  {
-    id: '1',
-    title: 'Implement price impact warnings in swap UI',
-    type: 'feature',
-    difficulty: 'intermediate',
-    points: 75,
-    skills: ['React', 'TypeScript'],
-    applications: 3,
-  },
-  {
-    id: '2',
-    title: 'Fix slippage calculation edge case',
-    type: 'bug',
-    difficulty: 'beginner',
-    points: 50,
-    skills: ['TypeScript'],
-    applications: 1,
-  },
-  {
-    id: '3',
-    title: 'Improve liquidity position documentation',
-    type: 'documentation',
-    difficulty: 'beginner',
-    points: 50,
-    skills: ['Technical Writing'],
-    applications: 0,
-  },
-  {
-    id: '4',
-    title: 'Build position analytics dashboard',
-    type: 'feature',
-    difficulty: 'advanced',
-    points: 100,
-    skills: ['React', 'TypeScript', 'Rust'],
-    applications: 5,
-  },
-];
+import { useProject, useIssues } from '@/lib/hooks';
 
 export default function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
   const submissions = useProjectSubmissions((s) => s.submissions);
   const submission = submissions.find((p) => p.slug === slug) || null;
 
+  const { data: apiProject, isLoading: projectLoading } = useProject(slug);
+  const { data: allIssues, isLoading: issuesLoading } = useIssues();
+
   const project = submission
     ? {
+        id: submission.slug,
         name: submission.name,
         slug: submission.slug,
         org: submission.org,
@@ -107,10 +51,54 @@ export default function ProjectPage({ params }: { params: Promise<{ slug: string
         website: undefined,
         github: submission.repoUrl,
       }
-    : PROJECT;
+    : apiProject
+      ? {
+          id: apiProject.id,
+          name: apiProject.name,
+          slug: apiProject.slug,
+          org: apiProject.organizationId ?? '',
+          description: apiProject.description,
+          longDescription: apiProject.description,
+          tags: apiProject.tags ?? [],
+          tech: apiProject.tech ?? [],
+          stars: apiProject.stars ?? 0,
+          forks: apiProject.forks ?? 0,
+          contributors: apiProject.contributors ?? 0,
+          openOpportunities: apiProject.openIssues ?? 0,
+          status: apiProject.status,
+          website: undefined,
+          github: undefined,
+        }
+      : null;
 
   const isApproved = !submission || submission.status === 'approved';
-  const issues = submission ? [] : ISSUES;
+  const issues = React.useMemo(() => {
+    if (!allIssues || !project) return [];
+    return allIssues.filter((issue) => issue.projectId === project.id);
+  }, [allIssues, project]);
+
+  if (projectLoading) {
+    return (
+      <div className="pt-20 pb-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="pt-20 pb-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center py-20">
+          <p className="text-sm text-muted-foreground">Project not found.</p>
+          <Button asChild className="mt-4">
+            <Link href="/projects">Back to projects</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pt-20 pb-16">
@@ -217,22 +205,28 @@ export default function ProjectPage({ params }: { params: Promise<{ slug: string
                 </TabsList>
 
                 <TabsContent value="issues">
-                  <IssuesList
-                    issues={issues}
-                    projectName={project.name}
-                  />
-              </TabsContent>
+                  {issuesLoading ? (
+                    <div className="flex items-center justify-center py-10">
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : (
+                    <IssuesList
+                      issues={issues}
+                      projectName={project.name}
+                    />
+                  )}
+                </TabsContent>
 
-              <TabsContent value="about">
-                <div className="prose prose-sm prose-invert max-w-none">
-                  {project.longDescription.split('\n\n').map((para, i) => (
-                    <p key={i} className="text-sm text-muted-foreground leading-relaxed mb-4">
-                      {para.trim()}
-                    </p>
-                  ))}
-                </div>
-              </TabsContent>
-            </Tabs>
+                <TabsContent value="about">
+                  <div className="prose prose-sm prose-invert max-w-none">
+                    {project.longDescription.split('\n\n').map((para, i) => (
+                      <p key={i} className="text-sm text-muted-foreground leading-relaxed mb-4">
+                        {para.trim()}
+                      </p>
+                    ))}
+                  </div>
+                </TabsContent>
+              </Tabs>
           </div>
 
           {/* Sidebar */}

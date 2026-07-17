@@ -1,6 +1,7 @@
-import type { Metadata } from 'next';
+'use client';
+import * as React from 'react';
 import Link from 'next/link';
-import { Search, Users, ExternalLink, Star } from 'lucide-react';
+import { Search, Users, ExternalLink, Star, Loader2 } from 'lucide-react';
 import { GithubIcon } from '@/components/ui/github-icon';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -8,38 +9,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PageHeader } from '@/components/design-system/page-header';
 import { EmptyState } from '@/components/design-system/empty-state';
 import { MetricCard } from '@/components/design-system/metric-card';
-
-export const metadata: Metadata = { title: 'Contributors' };
-
-const CONTRIBUTORS = [
-  {
-    id: '1', name: 'Alex Chen', handle: 'alexc_dev', avatar: '',
-    skills: ['Rust', 'TypeScript', 'React'],
-    activeProjects: 2, completedContribs: 7, reputation: 94, github: 'alexc_dev',
-  },
-  {
-    id: '2', name: 'Sarah Kim', handle: 'sarah_builds', avatar: '',
-    skills: ['Solidity', 'ethers.js', 'React'],
-    activeProjects: 1, completedContribs: 12, reputation: 87, github: 'sarah_builds',
-  },
-  {
-    id: '3', name: 'John Rivera', handle: 'john_dev', avatar: '',
-    skills: ['Go', 'PostgreSQL', 'Docker'],
-    activeProjects: 3, completedContribs: 5, reputation: 72, github: 'john_dev',
-  },
-  {
-    id: '4', name: 'Maya Patel', handle: 'maya_codes', avatar: '',
-    skills: ['Python', 'TypeScript', 'CosmWasm'],
-    activeProjects: 1, completedContribs: 9, reputation: 81, github: 'maya_codes',
-  },
-  {
-    id: '5', name: "Liam O'Brien", handle: 'liam_ob', avatar: '',
-    skills: ['Rust', 'CosmWasm', 'Move'],
-    activeProjects: 2, completedContribs: 3, reputation: 65, github: 'liam_ob',
-  },
-];
+import { useContributors, useContributorMetrics } from '@/lib/hooks/use-contributors';
 
 export default function ContributorsPage() {
+  const { data: contributors = [], isLoading: contributorsLoading } = useContributors();
+  const { data: metrics, isLoading: metricsLoading } = useContributorMetrics();
+  const [search, setSearch] = React.useState('');
+
+  const filteredContributors = contributors.filter(c => 
+    c.name.toLowerCase().includes(search.toLowerCase()) ||
+    c.handle.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="space-y-6 max-w-5xl">
       <PageHeader
@@ -47,11 +28,19 @@ export default function ContributorsPage() {
         description="Developers contributing to your projects."
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <MetricCard title="Total Contributors" value={47} icon={Users} change={23} changeLabel="this month" />
-        <MetricCard title="Active This Month" value={31} icon={Users} accent />
-        <MetricCard title="Completed Contributions" value={128} icon={Star} change={8} changeLabel="this month" />
-      </div>
+      {metricsLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="h-24 rounded-lg bg-muted animate-pulse" />
+          <div className="h-24 rounded-lg bg-muted animate-pulse" />
+          <div className="h-24 rounded-lg bg-muted animate-pulse" />
+        </div>
+      ) : metrics && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <MetricCard title="Total Contributors" value={metrics.total.value} icon={Users} change={metrics.total.change} changeLabel="this month" />
+          <MetricCard title="Active This Month" value={metrics.active.value} icon={Users} accent />
+          <MetricCard title="Completed Contributions" value={metrics.completed.value} icon={Star} change={metrics.completed.change} changeLabel="this month" />
+        </div>
+      )}
 
       <div className="flex items-center gap-3">
         <div className="max-w-xs flex-1">
@@ -59,15 +48,21 @@ export default function ContributorsPage() {
             placeholder="Search contributors..."
             startIcon={<Search />}
             className="h-8 text-xs"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </div>
 
-      {CONTRIBUTORS.length === 0 ? (
+      {contributorsLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : filteredContributors.length === 0 ? (
         <EmptyState
           icon={Users}
-          title="No contributors yet"
-          description="Publish contribution opportunities to attract developers to your projects."
+          title="No contributors found"
+          description={search ? "No contributors match your search." : "Publish contribution opportunities to attract developers to your projects."}
         />
       ) : (
         <div className="rounded-xl border border-border overflow-hidden">
@@ -82,7 +77,7 @@ export default function ContributorsPage() {
               </tr>
             </thead>
             <tbody>
-              {CONTRIBUTORS.map((c) => (
+              {filteredContributors.map((c) => (
                 <tr
                   key={c.id}
                   className="border-b border-border/50 last:border-0 hover:bg-muted/20 transition-colors"

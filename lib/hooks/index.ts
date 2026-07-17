@@ -1,9 +1,6 @@
 /**
  * React Query hooks for the SeiFlux API.
  *
- * All hooks use mock data today. When a real API is available, replace
- * the `queryFn` implementations — the calling components need no changes.
- *
  * Query key conventions:
  *   ['organizations']            — list
  *   ['organizations', id]        — single item
@@ -24,12 +21,14 @@
  *   ['notifications']            — list
  *   ['notifications', 'unread-count'] — unread badge count
  *   ['activity', limit]          — global activity feed
+ *   ['users']                    — list all users
  */
 
 export { useOrganizations, useOrganization } from './use-organizations';
 export { useProjects, useProject } from './use-projects';
-export { useContributors, useContributor } from './use-contributors';
+export { useContributors } from './use-contributors';
 export { useApplications } from './use-applications';
+export { useUsers } from './use-users';
 export { useGithubRepos, useGithubRepo, useGithubOrgs } from './use-github';
 export { useIssues, useIssue } from './use-issues';
 export { useWaves, useCurrentWave } from './use-waves';

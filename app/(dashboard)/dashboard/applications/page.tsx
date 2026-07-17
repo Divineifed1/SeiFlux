@@ -11,54 +11,39 @@ import { StatusBadge } from '@/components/design-system/status-badge';
 import { MetricCard } from '@/components/design-system/metric-card';
 import { formatRelativeTime } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
+import { useApplications } from '@/lib/hooks/use-applications';
 
 type AppStatus = 'pending' | 'review' | 'approved' | 'rejected';
 
-const INITIAL_APPLICATIONS = [
-  {
-    id: '1', applicant: 'Alex Chen', handle: 'alexc_dev',
-    opportunity: 'Fix slippage calculation edge case', project: 'SeiSwap DEX',
-    status: 'pending' as AppStatus, appliedAt: new Date(Date.now() - 1000 * 60 * 30),
-    skills: ['TypeScript'],
-  },
-  {
-    id: '2', applicant: 'Sarah Kim', handle: 'sarah_builds',
-    opportunity: 'Build position analytics dashboard', project: 'SeiSwap DEX',
-    status: 'review' as AppStatus, appliedAt: new Date(Date.now() - 1000 * 60 * 60 * 4),
-    skills: ['React', 'TypeScript'],
-  },
-  {
-    id: '3', applicant: 'John Rivera', handle: 'john_dev',
-    opportunity: 'Improve liquidity position docs', project: 'SeiSwap DEX',
-    status: 'approved' as AppStatus, appliedAt: new Date(Date.now() - 1000 * 60 * 60 * 26),
-    skills: ['Technical Writing'],
-  },
-  {
-    id: '4', applicant: 'Maya Patel', handle: 'maya_codes',
-    opportunity: 'Implement price impact warnings', project: 'SeiSwap DEX',
-    status: 'rejected' as AppStatus, appliedAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
-    skills: ['React', 'TypeScript'],
-  },
-  {
-    id: '5', applicant: "Liam O'Brien", handle: 'liam_ob',
-    opportunity: 'CosmWasm contract audit helper', project: 'SeiLend Protocol',
-    status: 'pending' as AppStatus, appliedAt: new Date(Date.now() - 1000 * 60 * 60 * 3),
-    skills: ['Rust', 'CosmWasm'],
-  },
-  {
-    id: '6', applicant: 'Amara Osei', handle: 'amara_dev',
-    opportunity: 'Add multi-hop routing algorithm', project: 'SeiSwap DEX',
-    status: 'review' as AppStatus, appliedAt: new Date(Date.now() - 1000 * 60 * 60 * 12),
-    skills: ['Rust', 'Algorithms'],
-  },
-];
-
 type Filter = 'all' | AppStatus;
 
+interface DashboardApplication {
+  id: string;
+  applicant: string;
+  handle: string;
+  opportunity: string;
+  project: string;
+  status: AppStatus;
+  appliedAt: Date;
+  skills: string[];
+}
+
 export default function ApplicationsPage() {
-  const [applications, setApplications] = React.useState(INITIAL_APPLICATIONS);
+  const { data: fetchedApplications = [], isLoading, error } = useApplications();
+  const [statusOverrides, setStatusOverrides] = React.useState<Record<string, AppStatus>>({});
   const [filter, setFilter] = React.useState<Filter>('all');
   const [search, setSearch] = React.useState('');
+
+  const applications: DashboardApplication[] = fetchedApplications.map((a) => ({
+    id: a.id,
+    applicant: a.contributorName,
+    handle: a.contributorHandle,
+    opportunity: a.issueTitle,
+    project: a.projectName,
+    status: (statusOverrides[a.id] ?? a.status) as AppStatus,
+    appliedAt: a.appliedAt,
+    skills: a.skills,
+  }));
 
   const pending = applications.filter((a) => a.status === 'pending').length;
   const approved = applications.filter((a) => a.status === 'approved').length;
@@ -77,9 +62,7 @@ export default function ApplicationsPage() {
   });
 
   function updateStatus(id: string, status: AppStatus) {
-    setApplications((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status } : a))
-    );
+    setStatusOverrides((prev) => ({ ...prev, [id]: status }));
     const app = applications.find((a) => a.id === id);
     if (!app) return;
     if (status === 'approved') {

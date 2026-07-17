@@ -6,50 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useProjectSubmissions } from '@/lib/store/project-submissions-store';
-
-const MOCK_PROJECTS = [
-  {
-    id: '1', name: 'SeiSwap DEX', org: 'SeiSwap Labs', slug: 'seiswap-dex',
-    description: 'Decentralized exchange built natively on Sei for ultra-fast, low-cost token swaps with concentrated liquidity.',
-    tags: ['DeFi', 'AMM'], tech: ['Rust', 'TypeScript', 'React'],
-    stars: 1243, forks: 89, contributors: 18, open: 12, status: 'approved',
-  },
-  {
-    id: '2', name: 'Sei NFT Marketplace', org: 'ArtSei Foundation', slug: 'sei-nft-marketplace',
-    description: 'A permissionless, gas-efficient NFT marketplace leveraging Sei\'s parallelized EVM and CosmWasm.',
-    tags: ['NFT', 'Marketplace'], tech: ['Solidity', 'React', 'Node.js'],
-    stars: 841, forks: 62, contributors: 11, open: 7, status: 'approved',
-  },
-  {
-    id: '3', name: 'Sei Indexer', org: 'SeiData', slug: 'sei-indexer',
-    description: 'High-performance blockchain data indexer optimized for Sei\'s unique architecture and parallelism.',
-    tags: ['Indexer', 'Infrastructure'], tech: ['Go', 'PostgreSQL', 'Redis'],
-    stars: 534, forks: 44, contributors: 9, open: 5, status: 'approved',
-  },
-  {
-    id: '4', name: 'SeiLend Protocol', org: 'SeiFinance', slug: 'seilend-protocol',
-    description: 'Overcollateralized lending protocol with isolated markets designed for Sei\'s speed and throughput.',
-    tags: ['DeFi', 'Lending'], tech: ['CosmWasm', 'TypeScript'],
-    stars: 672, forks: 51, contributors: 14, open: 9, status: 'approved',
-  },
-  {
-    id: '5', name: 'Sei Game Engine', org: 'SeiGames', slug: 'sei-game-engine',
-    description: 'On-chain game engine leveraging Sei\'s block times for real-time multiplayer blockchain gaming.',
-    tags: ['Gaming', 'Infrastructure'], tech: ['Rust', 'WebAssembly'],
-    stars: 389, forks: 31, contributors: 7, open: 4, status: 'approved',
-  },
-  {
-    id: '6', name: 'SeiOracle', org: 'SeiData', slug: 'sei-oracle',
-    description: 'Decentralized price oracle aggregating feeds from multiple sources with manipulation resistance.',
-    tags: ['Oracle', 'DeFi'], tech: ['Go', 'CosmWasm', 'Python'],
-    stars: 298, forks: 24, contributors: 6, open: 3, status: 'approved',
-  },
-];
+import { useProjects } from '@/lib/hooks';
 
 const CATEGORY_TAGS = ['All', 'DeFi', 'NFT', 'Gaming', 'Infrastructure', 'Indexer', 'Oracle', 'Lending'];
 
 export default function ProjectsPage() {
   const submissions = useProjectSubmissions((s) => s.submissions);
+  const { data: apiProjects } = useProjects();
 
   const submittedProjects = submissions
     .filter((p) => p.status === 'approved')
@@ -68,7 +31,22 @@ export default function ProjectsPage() {
       status: 'approved' as const,
     }));
 
-  const ALL_PROJECTS = [...submittedProjects, ...MOCK_PROJECTS];
+  const fetchedProjects = (apiProjects ?? []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    org: p.organizationId ?? '',
+    slug: p.slug,
+    description: p.description,
+    tags: p.tags ?? [],
+    tech: p.tech ?? [],
+    stars: p.stars ?? 0,
+    forks: p.forks ?? 0,
+    contributors: p.contributors ?? 0,
+    open: p.openIssues ?? 0,
+    status: p.status,
+  }));
+
+  const ALL_PROJECTS = [...submittedProjects, ...fetchedProjects];
 
   return (
     <div className="pt-24 pb-16">

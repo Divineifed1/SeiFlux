@@ -1,34 +1,26 @@
 'use client';
 import * as React from 'react';
-import { Zap, FileText, GitMerge, Trophy, Users } from 'lucide-react';
+import { Zap, FileText, GitMerge, Trophy, Users, Loader2 } from 'lucide-react';
 import { PageHeader } from '@/components/design-system/page-header';
 import { SectionHeader } from '@/components/design-system/section-header';
 import { MetricCard } from '@/components/design-system/metric-card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-
-const ISSUE_STATUS = [
-  { label: 'Open', count: 18, color: '#3b82f6' },
-  { label: 'In Review', count: 6, color: '#eab308' },
-  { label: 'Merged', count: 24, color: '#22c55e' },
-  { label: 'Closed', count: 9, color: '#64748b' },
-];
-
-const TOP_CONTRIBUTORS = [
-  { name: 'Dev Contributor', handle: 'dev_contributor', assigned: 4, merged: 5, points: 620 },
-  { name: 'Alex Builder', handle: 'alex_builder', assigned: 3, merged: 4, points: 540 },
-  { name: 'Sarah Kim', handle: 'sarah_builds', assigned: 2, merged: 3, points: 410 },
-  { name: 'Marcus Webb', handle: 'mwebb_eng', assigned: 1, merged: 2, points: 260 },
-];
-
-const PROJECT_HEALTH = [
-  { name: 'SeiSwap DEX', open: 8, applications: 14, assigned: 5 },
-  { name: 'SeiLend Protocol', open: 6, applications: 9, assigned: 3 },
-  { name: 'SeiSwap SDK', open: 4, applications: 5, assigned: 2 },
-];
+import { useMaintainerAnalytics } from '@/lib/hooks/use-maintainer-analytics';
 
 export default function MaintainerAnalyticsPage() {
-  const totalIssues = ISSUE_STATUS.reduce((a, c) => a + c.count, 0);
+  const { data, isLoading } = useMaintainerAnalytics();
+
+  if (isLoading || !data) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const { metrics, issueStatus, projectHealth, topContributors } = data;
+  const totalIssues = issueStatus.reduce((a, c) => a + c.count, 0);
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -38,17 +30,17 @@ export default function MaintainerAnalyticsPage() {
       />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <MetricCard title="Open Issues" value={18} icon={Zap} change={12} changeLabel="vs last wave" accent />
-        <MetricCard title="Applications" value={28} icon={FileText} change={9} changeLabel="vs last wave" />
-        <MetricCard title="Merged PRs" value={24} icon={GitMerge} change={18} changeLabel="vs last wave" />
-        <MetricCard title="Reward Pool" value="9.4K" prefix="" icon={Trophy} description="SEI distributed" />
+        <MetricCard title="Open Issues" value={metrics.openIssues.value} icon={Zap} change={metrics.openIssues.change} changeLabel="vs last wave" accent />
+        <MetricCard title="Applications" value={metrics.applications.value} icon={FileText} change={metrics.applications.change} changeLabel="vs last wave" />
+        <MetricCard title="Merged PRs" value={metrics.mergedPRs.value} icon={GitMerge} change={metrics.mergedPRs.change} changeLabel="vs last wave" />
+        <MetricCard title="Reward Pool" value={metrics.rewardPool.value.toLocaleString()} prefix="" icon={Trophy} description={metrics.rewardPool.description} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <section className="rounded-xl border border-border bg-card p-5">
           <SectionHeader title="Issues by status" description="Across all your projects" className="mb-5" />
           <div className="space-y-3">
-            {ISSUE_STATUS.map((s) => {
+            {issueStatus.map((s) => {
               const pct = totalIssues ? (s.count / totalIssues) * 100 : 0;
               return (
                 <div key={s.label}>
@@ -71,7 +63,7 @@ export default function MaintainerAnalyticsPage() {
         <section className="rounded-xl border border-border bg-card p-5">
           <SectionHeader title="Project health" description="Open vs assigned issues" className="mb-5" />
           <div className="space-y-4">
-            {PROJECT_HEALTH.map((p) => {
+            {projectHealth.map((p) => {
               const assignedPct = p.open ? (p.assigned / p.open) * 100 : 0;
               return (
                 <div key={p.name}>
@@ -106,7 +98,7 @@ export default function MaintainerAnalyticsPage() {
               </tr>
             </thead>
             <tbody>
-              {TOP_CONTRIBUTORS.map((c) => (
+              {topContributors.map((c) => (
                 <tr key={c.handle} className="border-b border-border/50 last:border-0 hover:bg-muted/20 transition-colors">
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2">

@@ -11,9 +11,15 @@ export class ApplicationsController {
   ) {}
 
   @Get()
-  async findAll(@Query('opportunityId') opportunityId?: string) {
+  async findAll(
+    @Query('opportunityId') opportunityId?: string,
+    @Query('applicantId') applicantId?: string,
+    @Query('status') status?: string,
+  ) {
     const where: Record<string, unknown> = {};
     if (opportunityId) where.opportunityId = opportunityId;
+    if (applicantId) where.applicantId = applicantId;
+    if (status) where.status = status;
     return this.applicationRepository.find({ where, order: { appliedAt: 'DESC' } });
   }
 

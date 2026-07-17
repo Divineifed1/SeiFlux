@@ -2,6 +2,7 @@
 import { Badge } from '@/components/ui/badge';
 import { ApplyDialog } from '@/components/dialogs/apply-dialog';
 import { Button } from '@/components/ui/button';
+import { Issue } from '@/lib/hooks/use-issues';
 
 const DIFFICULTY_CONFIG = {
   beginner:     { label: 'Beginner',     className: 'bg-green-500/10 text-green-400 ring-green-500/20' },
@@ -10,22 +11,11 @@ const DIFFICULTY_CONFIG = {
 };
 
 const TYPE_CONFIG = {
-  bug:           { label: 'Bug',     variant: 'destructive' as const },
-  feature:       { label: 'Feature', variant: 'info' as const },
-  documentation: { label: 'Docs',   variant: 'muted' as const },
-  design:        { label: 'Design',  variant: 'warning' as const },
-  other:         { label: 'Other',   variant: 'muted' as const },
+  'bug-fix':           { label: 'Bug',     variant: 'destructive' as const },
+  'feature':       { label: 'Feature', variant: 'info' as const },
+  'documentation': { label: 'Docs',   variant: 'muted' as const },
+  'good-first-issue':        { label: 'Design',  variant: 'warning' as const },
 };
-
-interface Issue {
-  id: string;
-  title: string;
-  type: string;
-  difficulty: string;
-  points: number;
-  skills: string[];
-  applications: number;
-}
 
 interface IssuesListProps {
   issues: Issue[];
@@ -82,7 +72,7 @@ export function IssuesList({ issues, projectName }: IssuesListProps) {
               </div>
               <div className="flex flex-col items-end gap-2 shrink-0">
                 <span className="text-xs text-muted-foreground">
-                  {issue.applications} applied
+                  {issue.applicantCount} applied
                 </span>
                 <ApplyDialog
                   issueTitle={issue.title}

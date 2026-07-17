@@ -1,4 +1,6 @@
+'use client';
 import Link from 'next/link';
+import * as React from 'react';
 import {
   ArrowRight,
   Zap,
@@ -11,14 +13,41 @@ import {
   Star,
   GitFork,
   CheckCircle2,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { PublicHeader } from '@/components/layout/public-header';
 import { PublicFooter } from '@/components/layout/public-footer';
+import { useProjects } from '@/lib/hooks';
+
+interface Metric {
+  value: string;
+  label: string;
+}
+
+async function fetchMetrics(): Promise<Metric[]> {
+  try {
+    const res = await fetch('/api/metrics', { cache: 'no-store' });
+    if (!res.ok) throw new Error('Failed to fetch metrics');
+    const data = await res.json();
+    return data.metrics;
+  } catch {
+    return [];
+  }
+}
 
 // ── Hero ─────────────────────────────────────────────────────────────────────
 function Hero() {
+  const [metrics, setMetrics] = React.useState<Metric[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    fetchMetrics()
+      .then(setMetrics)
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
       <div className="absolute inset-0 bg-grid opacity-100" />
@@ -50,17 +79,16 @@ function Hero() {
           </Button>
         </div>
         <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-          {[
-            { value: '120+', label: 'Projects' },
-            { value: '800+', label: 'Contributors' },
-            { value: '40+', label: 'Organizations' },
-            { value: '2k+', label: 'Applications' },
-          ].map((stat) => (
-            <div key={stat.label} className="flex items-center gap-2">
-              <span className="font-bold text-foreground">{stat.value}</span>
-              <span>{stat.label}</span>
-            </div>
-          ))}
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            metrics.map((stat) => (
+              <div key={stat.label} className="flex items-center gap-2">
+                <span className="font-bold text-foreground">{stat.value}</span>
+                <span>{stat.label}</span>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </section>
@@ -108,13 +136,9 @@ function Features() {
 }
 
 // ── Sample Projects ────────────────────────────────────────────────────────────
-const SAMPLE_PROJECTS = [
-  { name: 'SeiSwap DEX', org: 'SeiSwap Labs', description: 'Decentralized exchange built natively on Sei for ultra-fast token swaps.', tags: ['DeFi', 'Rust', 'TypeScript'], stars: 1200, forks: 89, openIssues: 12 },
-  { name: 'Sei NFT Marketplace', org: 'ArtSei Foundation', description: 'A permissionless NFT marketplace leveraging Sei\'s parallelized EVM.', tags: ['NFT', 'Solidity', 'React'], stars: 840, forks: 62, openIssues: 7 },
-  { name: 'Sei Indexer', org: 'SeiData', description: 'High-performance blockchain data indexer optimized for Sei\'s architecture.', tags: ['Indexer', 'Go', 'PostgreSQL'], stars: 530, forks: 44, openIssues: 5 },
-];
-
 function ProjectShowcase() {
+  const { data: projects, isLoading } = useProjects();
+
   return (
     <section className="py-24 border-t border-border/50 bg-card/20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -128,30 +152,40 @@ function ProjectShowcase() {
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {SAMPLE_PROJECTS.map((project) => (
-            <div key={project.name} className="rounded-xl border border-border bg-card p-5 transition-all duration-200 hover:border-border/80 hover:shadow-card-hover">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h3 className="text-sm font-semibold text-foreground">{project.name}</h3>
-                  <p className="text-xs text-muted-foreground">{project.org}</p>
+          {isLoading ? (
+            [0, 1, 2].map((i) => (
+              <div key={i} className="rounded-xl border border-border bg-card p-5">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              </div>
+            ))
+          ) : projects && projects.length > 0 ? (
+            projects.slice(0, 3).map((project) => (
+              <div key={project.id} className="rounded-xl border border-border bg-card p-5 transition-all duration-200 hover:border-border/80 hover:shadow-card-hover">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">{project.name}</h3>
+                    <p className="text-xs text-muted-foreground">{project.organizationId}</p>
+                  </div>
+                  <Badge variant="success" className="shrink-0 text-[10px]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-400 mr-1" />
+                    {project.openIssues ?? 0} open
+                  </Badge>
                 </div>
-                <Badge variant="success" className="shrink-0 text-[10px]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-400 mr-1" />
-                  {project.openIssues} open
-                </Badge>
+                <p className="text-xs text-muted-foreground mb-4 leading-relaxed line-clamp-2">{project.description}</p>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {(project.tags ?? []).map((tag) => (
+                    <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">{tag}</span>
+                  ))}
+                </div>
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1"><Star className="h-3 w-3" />{(project.stars ?? 0).toLocaleString()}</span>
+                  <span className="flex items-center gap-1"><GitFork className="h-3 w-3" />{project.forks ?? 0}</span>
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground mb-4 leading-relaxed line-clamp-2">{project.description}</p>
-              <div className="flex flex-wrap gap-1.5 mb-4">
-                {project.tags.map((tag) => (
-                  <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">{tag}</span>
-                ))}
-              </div>
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><Star className="h-3 w-3" />{project.stars.toLocaleString()}</span>
-                <span className="flex items-center gap-1"><GitFork className="h-3 w-3" />{project.forks}</span>
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground col-span-full">No projects available yet.</p>
+          )}
         </div>
       </div>
     </section>

@@ -17,70 +17,56 @@ import { PageHeader } from '@/components/design-system/page-header';
 import { SectionHeader } from '@/components/design-system/section-header';
 import { StatusBadge } from '@/components/design-system/status-badge';
 import { formatRelativeTime } from '@/lib/utils';
-
-const METRICS = [
-  { title: 'Organizations', value: 3, icon: Building2, change: 0, changeLabel: 'this month' },
-  { title: 'Projects', value: 12, icon: FolderKanban, change: 8, changeLabel: 'vs last month', accent: true },
-  { title: 'Contributors', value: 47, icon: Users, change: 23, changeLabel: 'vs last month' },
-  { title: 'Applications', value: 89, icon: FileText, change: 14, changeLabel: 'vs last month' },
-];
-
-const RECENT_ACTIVITY = [
-  {
-    id: '1',
-    type: 'application',
-    title: 'New application on SeiSwap DEX',
-    sub: 'john_dev applied to "Fix slippage bug"',
-    time: new Date(Date.now() - 1000 * 60 * 12),
-    status: 'pending',
-  },
-  {
-    id: '2',
-    type: 'project',
-    title: 'SeiLend Protocol approved',
-    sub: 'Your project listing was approved by platform admin',
-    time: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    status: 'approved',
-  },
-  {
-    id: '3',
-    type: 'application',
-    title: 'Application accepted',
-    sub: 'sarah_builds was approved for "Dashboard UI"',
-    time: new Date(Date.now() - 1000 * 60 * 60 * 5),
-    status: 'approved',
-  },
-  {
-    id: '4',
-    type: 'project',
-    title: 'New opportunity created',
-    sub: 'You published "Implement price impact warnings"',
-    time: new Date(Date.now() - 1000 * 60 * 60 * 22),
-    status: 'open',
-  },
-  {
-    id: '5',
-    type: 'application',
-    title: 'Application needs review',
-    sub: 'alex_coder applied to "Build analytics dashboard"',
-    time: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    status: 'pending',
-  },
-];
-
-const MY_PROJECTS = [
-  { id: '1', name: 'SeiSwap DEX', org: 'SeiSwap Labs', openApps: 5, status: 'approved' as const },
-  { id: '2', name: 'SeiLend Protocol', org: 'SeiFinance', openApps: 3, status: 'approved' as const },
-  { id: '3', name: 'Sei Game Engine', org: 'SeiGames', openApps: 2, status: 'pending' as const },
-];
+import { useAuthStore } from '@/lib/store/auth-store';
+import { useProjects } from '@/lib/hooks/use-projects';
+import { useApplications } from '@/lib/hooks/use-applications';
+import { useOrganizations } from '@/lib/hooks/use-organizations';
 
 const QUICK_ACTIONS = [
   { label: 'New Project', href: '/dashboard/projects', icon: FolderKanban, description: 'Add a project listing' },
   { label: 'New Organization', href: '/dashboard/organizations', icon: Building2, description: 'Set up an organization' },
-  { label: 'Review Applications', href: '/dashboard/applications', icon: FileText, description: '5 pending reviews' },
+  { label: 'Review Applications', href: '/dashboard/applications', icon: FileText, description: 'Pending reviews' },
 ];
 
 export function MaintainerDashboard() {
+  const user = useAuthStore((s) => s.user);
+  const { data: projects = [], isLoading: projectsLoading } = useProjects();
+  const { data: applications = [], isLoading: appsLoading } = useApplications();
+  const { data: organizations = [], isLoading: orgsLoading } = useOrganizations();
+
+  const myProjects = projects.filter((p) => p.organizationId != null);
+  const pendingApplications = applications.filter(
+    (a) => a.status === 'pending' || a.status === 'review'
+  );
+
+  const recentActivity = [
+    ...pendingApplications.map((a) => ({
+      id: a.id,
+      type: 'application' as const,
+      title: `New application on ${a.projectName}`,
+      sub: `${a.contributorName} applied to "${a.issueTitle}"`,
+      time: a.appliedAt,
+      status: a.status,
+    })),
+    ...myProjects.map((p) => ({
+      id: p.id,
+      type: 'project' as const,
+      title: `${p.name} ${p.status === 'approved' ? 'approved' : 'created'}`,
+      sub: `Project status: ${p.status}`,
+      time: p.createdAt ? new Date(p.createdAt) : new Date(),
+      status: p.status,
+    })),
+  ]
+    .sort((a, b) => b.time.getTime() - a.time.getTime())
+    .slice(0, 5);
+
+  const metrics = [
+    { title: 'Organizations', value: organizations.length, icon: Building2, change: 0, changeLabel: 'total' },
+    { title: 'Projects', value: projects.length, icon: FolderKanban, change: 0, changeLabel: 'total', accent: true },
+    { title: 'Contributors', value: new Set(applications.map((a) => a.contributorId)).size, icon: Users, change: 0, changeLabel: 'active' },
+    { title: 'Applications', value: applications.length, icon: FileText, change: 0, changeLabel: 'total' },
+  ];
+
   return (
     <div className="space-y-6 max-w-6xl">
       <PageHeader
@@ -97,7 +83,7 @@ export function MaintainerDashboard() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {METRICS.map((m) => (
+        {metrics.map((m) => (
           <MetricCard key={m.title} {...m} />
         ))}
       </div>
@@ -113,33 +99,45 @@ export function MaintainerDashboard() {
               </Button>
             }
           />
-          <div className="rounded-lg border border-border bg-card divide-y divide-border/50">
-            {RECENT_ACTIVITY.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-start gap-3 p-4 hover:bg-muted/20 transition-colors"
-              >
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted shrink-0">
-                  {item.type === 'application' ? (
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <FolderKanban className="h-4 w-4 text-muted-foreground" />
-                  )}
+          {appsLoading || projectsLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-16 rounded-lg border border-border bg-card animate-pulse" />
+              ))}
+            </div>
+          ) : recentActivity.length === 0 ? (
+            <div className="rounded-lg border border-border bg-card p-8 text-center">
+              <p className="text-sm text-muted-foreground">No recent activity.</p>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-border bg-card divide-y divide-border/50">
+              {recentActivity.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-start gap-3 p-4 hover:bg-muted/20 transition-colors"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted shrink-0">
+                    {item.type === 'application' ? (
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <FolderKanban className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground">{item.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{item.sub}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5 shrink-0">
+                    <StatusBadge status={item.status} />
+                    <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <Clock className="h-2.5 w-2.5" />
+                      {formatRelativeTime(item.time)}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">{item.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{item.sub}</p>
-                </div>
-                <div className="flex flex-col items-end gap-1.5 shrink-0">
-                  <StatusBadge status={item.status} />
-                  <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    <Clock className="h-2.5 w-2.5" />
-                    {formatRelativeTime(item.time)}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right column */}
@@ -181,31 +179,45 @@ export function MaintainerDashboard() {
               }
               className="mb-3"
             />
-            <div className="space-y-2">
-              {MY_PROJECTS.map((project) => (
-                <Link
-                  key={project.id}
-                  href={`/dashboard/projects/${project.id}`}
-                  className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 hover:bg-accent transition-colors"
-                >
-                  <div className="h-8 w-8 rounded-md bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0">
-                    {project.name.charAt(0)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{project.name}</p>
-                    <p className="text-xs text-muted-foreground">{project.org}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <StatusBadge status={project.status} />
-                    {project.openApps > 0 && (
-                      <Badge variant="info" className="text-[10px]">
-                        {project.openApps} apps
-                      </Badge>
-                    )}
-                  </div>
-                </Link>
-              ))}
-            </div>
+            {orgsLoading || projectsLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-14 rounded-lg border border-border bg-card animate-pulse" />
+                ))}
+              </div>
+            ) : myProjects.length === 0 ? (
+              <div className="rounded-lg border border-border bg-card p-6 text-center">
+                <p className="text-xs text-muted-foreground">No projects yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {myProjects.map((project) => (
+                  <Link
+                    key={project.id}
+                    href={`/dashboard/projects/${project.slug ?? project.id}`}
+                    className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 hover:bg-accent transition-colors"
+                  >
+                    <div className="h-8 w-8 rounded-md bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0">
+                      {project.name.charAt(0)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{project.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {project.tags?.slice(0, 2).join(', ') || 'No tags'}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <StatusBadge status={project.status} />
+                      {project.openIssues ? (
+                        <Badge variant="info" className="text-[10px]">
+                          {project.openIssues} issues
+                        </Badge>
+                      ) : null}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Growth tip */}

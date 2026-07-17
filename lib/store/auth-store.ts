@@ -101,27 +101,3 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
-
-export const MOCK_MAINTAINER: AuthUser = {
-  id: 'user_01',
-  name: 'Alex Builder',
-  email: 'alex@seiswap.example.com',
-  role: 'maintainer',
-  githubUsername: 'alexbuilder',
-};
-
-export const MOCK_ADMIN: AuthUser = {
-  id: 'user_admin',
-  name: 'Platform Admin',
-  email: 'admin@seibuilders.example.com',
-  role: 'admin',
-  githubUsername: 'sei_admin',
-};
-
-export const MOCK_CONTRIBUTOR: AuthUser = {
-  id: 'user_02',
-  name: 'Dev Contributor',
-  email: 'dev@example.com',
-  role: 'contributor',
-  githubUsername: 'devcontributor',
-};

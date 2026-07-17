@@ -115,7 +115,7 @@ export function CreateProjectDialog({ children, onSuccess }: CreateProjectDialog
     toast({
       variant: 'success',
       title: 'Project submitted for review',
-      description: `"${data.title}" has been submitted. Admins will review it within 1–2 business days.`,
+      description: `"${data.title}" has been submitted. Admins will review it within 2-4 business days.`,
     });
     onSuccess?.(data);
     setOpen(false);

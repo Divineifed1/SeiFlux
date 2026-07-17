@@ -154,7 +154,7 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
             <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
               <Zap className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-semibold text-sm text-foreground">seiflux</span>
+            <span className="font-semibold text-sm text-foreground">Seiflux</span>
           </Link>
           <Button variant="ghost" size="icon-sm" onClick={onClose}>
             <X className="h-4 w-4" />

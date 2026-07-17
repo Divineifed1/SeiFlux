@@ -12,16 +12,12 @@ import { cn, slugify } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { useProjectSubmissions } from '@/lib/store/project-submissions-store';
 import { useAuthStore } from '@/lib/store/auth-store';
+import { useGithubRepos } from '@/lib/hooks/use-github';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 const CATEGORIES = ['DeFi', 'NFT', 'Gaming', 'Infrastructure', 'Tooling', 'Social', 'DAO', 'Analytics', 'Bridge'];
 const TECH_STACK = ['Rust', 'TypeScript', 'React', 'CosmWasm', 'Next.js', 'GraphQL', 'Solidity', 'AssemblyScript', 'Python', 'Go', 'Tailwind CSS', 'Node.js'];
 const DIFFICULTY_OPTIONS = ['beginner-friendly', 'intermediate', 'advanced'] as const;
-const MOCK_REPOS = [
-  { name: 'seiswap-dex', fullName: 'seiswap-labs/seiswap-dex', stars: 1243, language: 'TypeScript', visibility: 'public' },
-  { name: 'seiswap-sdk', fullName: 'seiswap-labs/seiswap-sdk', stars: 348, language: 'TypeScript', visibility: 'public' },
-  { name: 'seiswap-subgraph', fullName: 'seiswap-labs/seiswap-subgraph', stars: 89, language: 'AssemblyScript', visibility: 'public' },
-];
 
 interface WizardState {
   // Step 1
@@ -88,6 +84,7 @@ export default function NewProjectPage() {
   const [publishing, setPublishing] = React.useState(false);
   const [repoSearch, setRepoSearch] = React.useState('');
   const user = useAuthStore((s) => s.user);
+  const { data: githubRepos = [], isLoading: reposLoading } = useGithubRepos();
 
   React.useEffect(() => {
     if (user?.email) {
@@ -95,7 +92,7 @@ export default function NewProjectPage() {
     }
   }, [user]);
 
-  const filteredRepos = MOCK_REPOS.filter((r) =>
+  const filteredRepos = githubRepos.filter((r) =>
     r.fullName.toLowerCase().includes(repoSearch.toLowerCase())
   );
 
@@ -156,7 +153,7 @@ export default function NewProjectPage() {
     }
   };
 
-  const selectedRepo = MOCK_REPOS.find((r) => r.fullName === state.repoFullName);
+  const selectedRepo = githubRepos.find((r) => r.fullName === state.repoFullName);
 
   return (
     <div className="max-w-2xl">
@@ -307,33 +304,41 @@ export default function NewProjectPage() {
             </div>
 
             <div className="space-y-2">
-              {filteredRepos.map((repo) => (
-                <button
-                  key={repo.fullName}
-                  type="button"
-                  onClick={() => dispatch({ type: 'SET_FIELD', field: 'repoFullName', value: repo.fullName })}
-                  className={cn(
-                    'w-full text-left rounded-lg border p-4 transition-all',
-                    state.repoFullName === repo.fullName
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:bg-muted/40'
-                  )}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{repo.fullName}</p>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><Star className="h-3 w-3" />{repo.stars}</span>
-                        <Badge variant="muted" className="text-[10px] px-1.5">{repo.language}</Badge>
-                        <span className="flex items-center gap-1"><GitBranch className="h-3 w-3" />{repo.visibility}</span>
-                      </div>
-                    </div>
-                    {state.repoFullName === repo.fullName && (
-                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+              {reposLoading ? (
+                [1, 2, 3].map((i) => (
+                  <div key={i} className="h-16 rounded-lg border border-border bg-card animate-pulse" />
+                ))
+              ) : filteredRepos.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-4">No repositories found. Connect a GitHub organization first.</p>
+              ) : (
+                filteredRepos.map((repo) => (
+                  <button
+                    key={repo.fullName}
+                    type="button"
+                    onClick={() => dispatch({ type: 'SET_FIELD', field: 'repoFullName', value: repo.fullName })}
+                    className={cn(
+                      'w-full text-left rounded-lg border p-4 transition-all',
+                      state.repoFullName === repo.fullName
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:bg-muted/40'
                     )}
-                  </div>
-                </button>
-              ))}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{repo.fullName}</p>
+                        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1"><Star className="h-3 w-3" />{repo.stars}</span>
+                          <Badge variant="muted" className="text-[10px] px-1.5">{repo.language}</Badge>
+                          <span className="flex items-center gap-1"><GitBranch className="h-3 w-3" />{repo.visibility}</span>
+                        </div>
+                      </div>
+                      {state.repoFullName === repo.fullName && (
+                        <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                      )}
+                    </div>
+                  </button>
+                ))
+              )}
             </div>
 
             <div className="pt-2 border-t border-border">

@@ -1,36 +1,39 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 export interface Contributor {
   id: string;
   name: string;
   handle: string;
+  avatar: string;
   bio?: string;
   skills: string[];
-  github?: string;
-  website?: string;
-  location?: string;
   activeProjects: number;
   completedContribs: number;
-  totalApplications: number;
   reputation: number;
-  joinedAt: Date;
+  github: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+export interface ContributorMetrics {
+  total: { value: number; change: number };
+  active: { value: number };
+  completed: { value: number; change: number };
+}
 
 async function fetchContributors(): Promise<Contributor[]> {
-  const response = await fetch(`${API_BASE}/users?role=contributor`);
+  const response = await fetch(`${API_BASE}/contributors`);
   if (!response.ok) {
     throw new Error('Failed to fetch contributors');
   }
   return response.json();
 }
 
-async function fetchContributor(id: string): Promise<Contributor> {
-  const response = await fetch(`${API_BASE}/users/${id}`);
+async function fetchContributorMetrics(): Promise<ContributorMetrics> {
+  const response = await fetch(`${API_BASE}/contributors/metrics`);
   if (!response.ok) {
-    throw new Error(`Contributor ${id} not found`);
+    throw new Error('Failed to fetch contributor metrics');
   }
   return response.json();
 }
@@ -43,11 +46,10 @@ export function useContributors() {
   });
 }
 
-export function useContributor(id: string) {
+export function useContributorMetrics() {
   return useQuery({
-    queryKey: ['contributors', id],
-    queryFn: () => fetchContributor(id),
-    enabled: !!id,
+    queryKey: ['contributor-metrics'],
+    queryFn: fetchContributorMetrics,
     staleTime: 60_000,
   });
 }
